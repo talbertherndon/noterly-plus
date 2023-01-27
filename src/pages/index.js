@@ -2,10 +2,13 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
+import { Button } from '@mui/material'
+import { useRouter } from 'next/router'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -16,6 +19,9 @@ export default function Home() {
       </Head>
       <main className={styles.main}>
         <div className={styles.description}>
+          <Button onClick={() => {
+            router.push("/quiz")
+          }} sx={{ backgroundColor: 'red' }} variant="outlined">Go to Quiz</Button>
           <p>
             Get started by editing&nbsp;
             <code className={styles.code}>pages/index.js</code>
