@@ -18,7 +18,6 @@ export default function LoginContainer({
     setPassword,
     error,
     handleLogin,
-    googleLogin
 }) {
     const { width, height } = useWindowDimensions();
 
@@ -47,13 +46,6 @@ export default function LoginContainer({
                         maxWidth: 450,
                     }}
                 >
-                    <Image
-                        width="100"
-                        height="100"
-                        // sx={{ mx: 10 }}
-                        src="/images/icons/Logo Icon.png"
-                        resizeMode="cover"
-                    />
                 </Box>
                 <Typography sx={{ color: "black", fontSize: 30, fontWeight: 600, fontFamily: "Montserrat", fontStyle: "bold", mt: 3 }}>
                     Sign in to Seminary✏️
