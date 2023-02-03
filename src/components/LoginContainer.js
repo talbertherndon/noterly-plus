@@ -18,7 +18,7 @@ export default function LoginContainer({
     setPassword,
     error,
     handleLogin,
-    hangleSignUp,
+    handleSignUp,
 }) {
     const { width, height } = useWindowDimensions();
 
