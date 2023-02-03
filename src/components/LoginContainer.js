@@ -12,13 +12,14 @@ import Image from "next/image";
 import useWindowDimensions from "../contexts/hooks/useWindowDimensions";
 
 export default function LoginContainer({
+    newUser,
+    setNewUser,
     email,
     setEmail,
     password,
     setPassword,
     error,
     handleLogin,
-    handleSignUp,
 }) {
     const { width, height } = useWindowDimensions();
 
@@ -26,7 +27,7 @@ export default function LoginContainer({
 
     return (
         <Box
-            style={{
+            sx={{
                 flex: 1,
                 display: "flex",
                 justifyContent: "center",
@@ -41,7 +42,7 @@ export default function LoginContainer({
                 }}
             >
                 <Box
-                    style={{
+                    sx={{
                         marginHorizontal: width >= 450 ? 20 : 20,
                         minWidth: 250,
                         maxWidth: 450,
@@ -51,7 +52,7 @@ export default function LoginContainer({
                 <Typography sx={{ color: "black", fontSize: 30, fontWeight: 600, fontFamily: "Montserrat", fontStyle: "bold", mt: 3 }}>
                     Sign in to Seminary✏️
                 </Typography>
-                <Typography style={{ color: "black", fontSize: 16, color: "grey", fontFamily: "montserrat" }}>
+                <Typography sx={{ color: "black", fontSize: 16, color: "grey", fontFamily: "montserrat" }}>
                     Please enter your account info to sign in
                 </Typography>
 
@@ -92,7 +93,7 @@ export default function LoginContainer({
                         mt: 2,
                     }}
                 >
-                    <Box style={{ flex: 1, fontFamily: "montserrat" }}>
+                    <Box sx={{ flex: 1, fontFamily: "montserrat" }}>
                         <TextField
                             fullWidth
                             placeholder="Email"
@@ -129,26 +130,14 @@ export default function LoginContainer({
                                 }}
                                 onClick={handleLogin}
                             >
-                                <Typography style={{ textAlign: "center", fontFamily: "montserrat" }}>Log in</Typography>
+                                <Typography sx={{ textAlign: "center", fontFamily: "montserrat" }}>Log in</Typography>
                             </Button>
                         </Box>
-                        <Box sx={{ mt: 5, display: "flex" }}>
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    display: "flex",
-                                    width: "100%",
-                                    textTransform: "none",
-                                    backgroundColor: "#189EE5",
-                                    height: 55
-                                }}
-                                onClick={handleSignUp}
-                            >
-                                <Typography style={{ textAlign: "center", fontFamily: "montserrat" }}>Sign Up</Typography>
-                            </Button>
-                        </Box>
-                        <Typography style={{ color: "red" }}>{error}</Typography>
+                        <Typography sx={{ color: "red" }}>{error}</Typography>
                     </Box>
+                        <Typography sx={{mt:2, cursor:"pointer", "&:hover":{opacity:0.7}}} onClick={()=>{setNewUser(true)}}>
+                            Don't have an account?
+                        </Typography>
                     {/* <Box>
                             <Button variant="contained">Sign up!</Button>
                     </Box> */}
