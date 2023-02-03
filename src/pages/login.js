@@ -2,6 +2,7 @@ import { Box } from "@mui/material"
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router"
 import { useState } from "react";
+import { toast } from "react-toastify";
 import LoginContainer from "../components/LoginContainer"
 
 export default function Login({ data }) {
@@ -25,9 +26,10 @@ export default function Login({ data }) {
             if (res.ok) {
                 router.push('/dashboard');
             } else {
+                toast.error("Please try agiain!")
                 setError("Please try again!");
-                setEmail();
-                setPassword();
+                setEmail("");
+                setPassword("");
             }
         })
             .catch((error) => {

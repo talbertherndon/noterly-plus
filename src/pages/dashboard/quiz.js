@@ -1,32 +1,47 @@
 import Header from "@/components/Header";
 import useWindowDimensions from "@/contexts/hooks/useWindowDimensions";
-import { Box, Chip, TextField, Typography, Button } from "@mui/material";
+import { Box, Chip, TextField, Typography, Button, Select, FormControl, InputLabel, MenuItem, Radio, IconButton } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Carousel from 'react-material-ui-carousel';
 import { media } from '../../mock/images';
 import { motion } from 'framer-motion';
 import { createSet } from "@/utils/api";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getSession } from "next-auth/react";
+import { toast } from "react-toastify";
 
 
-export default function Quiz() {
+export default function Quiz({ data }) {
     const router = useRouter();
     const { width } = useWindowDimensions();
     const [set, setSet] = useState({
         name: "",
         description: "",
-        user_id: 1,
+        user_id: data?.user.id,
         photo: '',
+        questions: []
     })
+    const [type, setType] = useState();
+    const [questions, setQuestions] = useState([])
+    const [choices, setChoices] = useState([])
+    const [question, setQuestion] = useState('')
+    const [selectedValue, setSelectedValue] = useState();
+
 
     const [imageIndex, setImageIndex] = useState()
 
+
     function createSetHandler() {
         console.log(set)
-        createSet(set).then((res)=>{
-            console.log("SET CREATED")
-            console.log(res)
-        })
+        console.log(questions)
+        // createSet(set).then((res) => {
+        //     console.log("SET CREATED")
+        //     console.log(res)
+        //     router.push("/dashboard")
+        // }).catch((e) => {
+        //     toast.error("Set is not finished!")
+        // })
     }
 
     useEffect(() => {
@@ -34,6 +49,53 @@ export default function Quiz() {
         setSet({ ...set, photo: media[imageIndex]?.photo })
 
     }, [imageIndex])
+
+    function choicesHandler(e) {
+        console.log(e)
+
+    }
+
+    const updateFieldChanged = index => e => {
+        console.log('index: ' + index);
+        console.log('property value: ' + e.target.value);
+        let newArr = [...choices]; // copying the old datas array
+        // a deep copy is not needed as we are overriding the whole object below, and not setting a property of it. this does not mutate the state.
+        newArr[index] = e.target.value.toLowerCase(); // replace e.target.value with whatever you want to change it to
+        setChoices(newArr);
+    }
+
+    const updateFieldChangedAnswer = index => e => {
+        console.log('index: ' + index);
+        setSelectedValue(e.target.value)
+        console.log('property isAnswer: ' + e.target.value);
+        console.log(choices)
+
+    }
+    function addQuestionHandler() {
+        if (choices[selectedValue]) {
+            const cur_question = {
+                question,
+                type,
+                choices,
+                answer: choices[selectedValue],
+                index: questions.length
+            }
+            console.log(cur_question)
+            setQuestions(prev => [...prev, cur_question])
+            setChoices([])
+            setQuestion('')
+            setType()
+            console.log(questions)
+
+        } else {
+            toast.error("Please select an answer")
+        }
+
+    }
+    useEffect(() => {
+
+
+    }, [choices])
 
     return (<Box>
         <Header />
@@ -127,17 +189,67 @@ export default function Quiz() {
                     </Box>
 
 
-                    <Box sx={{ width: 600 }}>
+                    <Box sx={{ maxWidth: 600 }}>
+                        {questions.map((res) => {
+                            return (
+                                <Box sx={{ p: 2, border: 1, borderRadius: 3, my: 2, borderColor: "white", display: 'flex' }}>
+                                    <Box>
+                                        <Typography>
+                                            {res.question}
+
+                                        </Typography>
+                                        <Typography>{res.answer}</Typography>
+                                    </Box>
+                                    <IconButton onClick={() => { setQuestions(questions.filter((r) => { return r != res })) }} sx={{ ml: "auto" }}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </Box>
+                            )
+                        })}
                         <Box sx={{ display: "flex", flexDirection: "column" }}>
-                            <TextField size="small" placeholder="Untiled Question" />
-                            <Box sx={{ mt: 1 }}>
-                                <TextField size="small" />
+                            <Box sx={{ display: 'flex' }}>
+                                <TextField value={question} onChange={(e) => { setQuestion(e.target.value) }} sx={{ flex: 2, mr: 1 }} size="small" placeholder="Untiled Question" />
+                                <FormControl sx={{ flex: 1, ml: 1 }} size="small">
+                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                    <Select labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        value={type}
+                                        label="Age"
+                                        onChange={(e) => { setType(e.target.value) }} >
+                                        <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem>
+                                    </Select>
+                                </FormControl >
+                            </Box>
+                            {choices.map((res, index) => {
+                                return (
+                                    <Box sx={{ mt: 1, display: 'flex' }}>
+                                        <Radio checked={selectedValue == index}
+                                            onChange={updateFieldChangedAnswer(index)}
+
+                                            value={index}
+                                            name="radio-buttons"
+                                            inputProps={{ 'aria-label': `${index}` }} />
+                                        <TextField size="small" value={res} onChange={updateFieldChanged(index)} />
+                                        <IconButton sx={{ alignSelf: 'center', ml: 1 }} onClick={() => { setChoices(choices.filter((r) => { return r != res })) }} >
+                                            <DeleteIcon sx={{ color: "black" }} />
+                                        </IconButton>
+                                    </Box>)
+                            })}
+
+                            <Box sx={{ my: 1 }}>
+                                <Chip onClick={() => {
+                                    if (choices.length < 4) {
+                                        setChoices(choices => [...choices, `Choice ${choices.length + 1}`])
+                                    } else {
+                                        toast.info("Max is 4 multiple choice")
+                                    }
+                                }} clickable label="Add Choice" />
                             </Box>
                         </Box>
                     </Box>
 
                     <Box>
-                        <Chip label="Add Question" />
+                        <Chip clickable onClick={addQuestionHandler} label="Add Question" />
                     </Box>
                     <Box>
                         <Button variant="contained" onClick={createSetHandler}>Create Quiz</Button>
@@ -147,4 +259,20 @@ export default function Quiz() {
         </Box>
     </Box>
     );
+}
+
+export async function getServerSideProps({ req }) {
+    const session = await getSession({ req });
+    console.log(session);
+    if (!session) {
+        return {
+            redirect: {
+                destination: "/",
+                permanent: false,
+            },
+        };
+    }
+    return {
+        props: { data: session },
+    };
 }
