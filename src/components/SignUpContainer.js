@@ -11,16 +11,25 @@ import {
 import Image from "next/image";
 import useWindowDimensions from "../contexts/hooks/useWindowDimensions";
 
-export default function LoginContainer({
+export default function SignUpContainer({
+    name,
+    setName,
     email,
     setEmail,
     password,
     setPassword,
     error,
-    handleLogin,
-    hangleSignUp,
+    //handleLogin,
 }) {
     const { width, height } = useWindowDimensions();
+
+    // function createSetHandler() {
+    //     console.log(set)
+    //     createSet(set).then((res)=>{
+    //         console.log("SET CREATED")
+    //         console.log(res)
+    //     })
+    // }
 
 
 
@@ -49,10 +58,10 @@ export default function LoginContainer({
                 >
                 </Box>
                 <Typography sx={{ color: "black", fontSize: 30, fontWeight: 600, fontFamily: "Montserrat", fontStyle: "bold", mt: 3 }}>
-                    Sign in to Seminary✏️
+                    Sign up to Seminary✏️
                 </Typography>
                 <Typography style={{ color: "black", fontSize: 16, color: "grey", fontFamily: "montserrat" }}>
-                    Please enter your account info to sign in
+                    Please create your account info to sign up
                 </Typography>
 
                 {/* TODO --- google button, use later ---- */}
@@ -95,7 +104,17 @@ export default function LoginContainer({
                     <Box style={{ flex: 1, fontFamily: "montserrat" }}>
                         <TextField
                             fullWidth
-                            placeholder="Email"
+                            placeholder="Enter your name"
+                            variant="outlined"
+                            value={email}
+                            onChange={(e) => setName(e.target.value)}
+                            sx={{
+                                backgroundColor: "rgba(28, 117, 188, 0.09)",
+                            }}
+                        />
+                        <TextField
+                            fullWidth
+                            placeholder="Enter your Email"
                             variant="outlined"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -106,7 +125,7 @@ export default function LoginContainer({
                         <TextField
                             fontFamily="montserrat"
                             fullWidth
-                            placeholder="Password"
+                            placeholder="Enter your Password"
                             variant="outlined"
                             type="password"
                             value={password}
@@ -132,7 +151,9 @@ export default function LoginContainer({
                                 <Typography style={{ textAlign: "center", fontFamily: "montserrat" }}>Log in</Typography>
                             </Button>
                         </Box>
-                        <Box sx={{ mt: 5, display: "flex" }}>
+                        <Typography style={{ color: "red" }}>{error}</Typography>
+                    </Box>
+                    <Box sx={{ mt: 5, display: "flex" }}>
                             <Button
                                 variant="contained"
                                 sx={{
@@ -142,16 +163,11 @@ export default function LoginContainer({
                                     backgroundColor: "#189EE5",
                                     height: 55
                                 }}
-                                onClick={handleSignUp}
+                                onClick={handleLogin}
                             >
-                                <Typography style={{ textAlign: "center", fontFamily: "montserrat" }}>Sign Up</Typography>
+                                <Typography style={{ textAlign: "center", fontFamily: "montserrat" }}>Submit</Typography>
                             </Button>
                         </Box>
-                        <Typography style={{ color: "red" }}>{error}</Typography>
-                    </Box>
-                    {/* <Box>
-                            <Button variant="contained">Sign up!</Button>
-                    </Box> */}
                 </Box>
             </Box>
         </Box>
