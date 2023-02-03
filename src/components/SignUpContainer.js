@@ -12,6 +12,8 @@ import Image from "next/image";
 import useWindowDimensions from "../contexts/hooks/useWindowDimensions";
 
 export default function SignUpContainer({
+  newUser,
+  setNewUser,
   name,
   setName,
   email,
@@ -170,6 +172,9 @@ export default function SignUpContainer({
             </Box>
             <Typography style={{ color: "red" }}>{error}</Typography>
           </Box>
+          <Typography sx={{mt:2, cursor:"pointer", "&:hover":{opacity:0.7}}} onClick={()=>{setNewUser(false)}}>
+                            Already have an account?
+                        </Typography>
         </Box>
       </Box>
     </Box>
