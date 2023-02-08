@@ -216,9 +216,12 @@ export default function Quiz({ data }) {
                                         value={type}
                                         label="Age"
                                         onChange={(e) => { setType(e.target.value) }} >
-                                        <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem>
+                                        <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem> 
+                                        <MenuItem defaultValue={true} value={'trueFalse'}>True or False</MenuItem>
+                                        <MenuItem defaultValue={true} value={'trueFalse'}>Fill in Blank</MenuItem>
+                                        <MenuItem defaultValue={true} value={'trueFalse'}>Matching</MenuItem>  
                                     </Select>
-                                </FormControl >
+                                    </FormControl>
                             </Box>
                             {choices.map((res, index) => {
                                 return (
