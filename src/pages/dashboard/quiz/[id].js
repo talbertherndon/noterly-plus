@@ -127,7 +127,7 @@ export default function editQuiz({ data }) {
                         >
                             Edit Quiz
                         </Typography>
-                        <Box sx={{ maxWidth: 300 ,my:2}}>
+                        <Box sx={{ maxWidth: 300, my: 2 }}>
                             <Box sx={{ borderRadius: 4, overflow: 'hidden', width: 150, height: 150, boxShadow: 3 }}>
                                 <Box sx={{ height: 150, overflow: 'hidden' }}>
                                     <motion.div animate={{ y: 0, scale: 1.1 }} whileHover={{ scale: 1.5 }}>
@@ -219,6 +219,9 @@ export default function editQuiz({ data }) {
                                             label="Type"
                                             onChange={(e) => { setType(e.target.value) }} >
                                             <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem>
+                                            <MenuItem defaultValue={false} value={'truefalse'}>True or False</MenuItem>
+                                            <MenuItem defaultValue={false} value={'fillInBlank'}>Fill in Blank</MenuItem>
+                                            <MenuItem defaultValue={false} value={'matching'}>Matching</MenuItem>
                                         </Select>
                                     </FormControl >
                                 </Box>
