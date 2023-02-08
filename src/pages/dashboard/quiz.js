@@ -210,7 +210,7 @@ export default function Quiz({ data }) {
                             <Box sx={{ display: 'flex' }}>
                                 <TextField value={question} onChange={(e) => { setQuestion(e.target.value) }} sx={{ flex: 2, mr: 1 }} size="small" placeholder="Untiled Question" />
                                 <FormControl sx={{ flex: 1, ml: 1 }} size="small">
-                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                    <InputLabel id="demo-simple-select-label">Question Type</InputLabel>
                                     <Select labelId="demo-simple-select-label"
                                         id="demo-simple-select"
                                         value={type}
@@ -218,8 +218,8 @@ export default function Quiz({ data }) {
                                         onChange={(e) => { setType(e.target.value) }} >
                                         <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem> 
                                         <MenuItem defaultValue={true} value={'trueFalse'}>True or False</MenuItem>
-                                        <MenuItem defaultValue={true} value={'trueFalse'}>Fill in Blank</MenuItem>
-                                        <MenuItem defaultValue={true} value={'trueFalse'}>Matching</MenuItem>  
+                                        <MenuItem defaultValue={true} value={'fillInBlank'}>Fill in Blank</MenuItem>
+                                        <MenuItem defaultValue={true} value={'matching'}>Matching</MenuItem>  
                                     </Select>
                                     </FormControl>
                             </Box>
