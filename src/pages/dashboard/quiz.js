@@ -217,9 +217,9 @@ export default function Quiz({ data }) {
                                         label="Question Type"
                                         onChange={(e) => { setType(e.target.value) }} >
                                         <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem> 
-                                        <MenuItem defaultValue={true} value={'trueFalse'}>True or False</MenuItem>
-                                        <MenuItem defaultValue={true} value={'fillInBlank'}>Fill in Blank</MenuItem>
-                                        <MenuItem defaultValue={true} value={'matching'}>Matching</MenuItem>  
+                                        <MenuItem defaultValue={false} value={'trueFalse'}>True or False</MenuItem>
+                                        <MenuItem defaultValue={false} value={'fillInBlank'}>Fill in Blank</MenuItem>
+                                        <MenuItem defaultValue={false} value={'matching'}>Matching</MenuItem>  
                                     </Select>
                                     </FormControl>
                             </Box>
