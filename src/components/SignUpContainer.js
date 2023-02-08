@@ -135,6 +135,7 @@ export default function SignUpContainer({
               onChange={(e) => setEmail(e.target.value)}
               sx={{
                 backgroundColor: "rgba(28, 117, 188, 0.09)",
+                mt: 2,
               }}
             />
             <TextField
@@ -172,9 +173,9 @@ export default function SignUpContainer({
             </Box>
             <Typography style={{ color: "red" }}>{error}</Typography>
           </Box>
-          <Typography sx={{mt:2, cursor:"pointer", "&:hover":{opacity:0.7}}} onClick={()=>{setNewUser(false)}}>
-                            Already have an account?
-                        </Typography>
+          <Typography sx={{ mt: 2, cursor: "pointer", "&:hover": { opacity: 0.7 } }} onClick={() => { setNewUser(false) }}>
+            Already have an account?
+          </Typography>
         </Box>
       </Box>
     </Box>
