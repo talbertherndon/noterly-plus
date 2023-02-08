@@ -1,6 +1,20 @@
 import axios from "axios";
+import { getSession } from "next-auth/react";
 import { API_BASE_URL } from "./config";
+import { toast } from "react-toastify";
 
+export async function signUp(data) {
+    try {
+        return await axios.post(API_BASE_URL + "/auth/signup", data).then((res) => {
+            console.log(res);
+            return res
+        })
+    } catch (e) {
+       
+
+        throw (e);
+    }
+}
 export async function createSet(payload) {
     console.log(payload);
     try {
@@ -16,9 +30,10 @@ export async function createSet(payload) {
 }
 
 export async function getSets() {
+    const { token } = await getSession();
 
     try {
-        return await axios.get(API_BASE_URL + "/sets").then((res) => {
+        return await axios.get(API_BASE_URL + "/sets", { token }).then((res) => {
             console.log(res);
             return res
         })
