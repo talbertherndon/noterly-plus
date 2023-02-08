@@ -214,7 +214,7 @@ export default function Quiz({ data }) {
                                     <Select labelId="demo-simple-select-label"
                                         id="demo-simple-select"
                                         value={type}
-                                        label="Age"
+                                        label="Question Type"
                                         onChange={(e) => { setType(e.target.value) }} >
                                         <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem> 
                                         <MenuItem defaultValue={true} value={'trueFalse'}>True or False</MenuItem>
