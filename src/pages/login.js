@@ -1,3 +1,4 @@
+import { signUp } from "@/utils/api";
 import { Box } from "@mui/material";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -15,36 +16,58 @@ export default function Login({ data }) {
   const router = useRouter();
 
   function handleSignUp() {
-    router.push("/dashboard");
+
+    //router.push("/dashboard");
     const data = {
       name,
       email,
       password,
     };
-    signUp("credentials", {
-      ...data,
-      redirect: false,
-      callbackUrl: "/",
-    })
-      .then((res) => {
-        console.log(res);
-        if (res.ok) {
-          router.push("/components");
-        } else {
-          toast.error("Please try agiain!");
-          setError("Please try again!");
-          setName("");
-          setEmail("");
-          setPassword("");
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        setName();
-        setEmail();
-        setPassword();
-        setError("Please try again!");
-      });
+    signUp(data).then((res) => {
+      if (res.data.authToken) {
+        signIn("credentials", {
+          ...data,
+          redirect: false,
+          callbackUrl: "/",
+        }).then((res) => {
+          console.log(res);
+          if (res.ok) {
+            router.push("/dashboard");
+          } else {
+            toast.error("Please try agiain!");
+            setError("Please try again!");
+            setEmail("");
+            setPassword("");
+          }
+        })
+      }
+      console.log(res)
+    }).catch((e) => { toast.error(e.response.data?.message); console.log(e); })
+
+    // signUp("credentials", {
+    //   ...data,
+    //   redirect: false,
+    //   callbackUrl: "/",
+    // })
+    //   .then((res) => {
+    //     console.log(res);
+    //     if (res.ok) {
+    //       router.push("/components");
+    //     } else {
+    //       toast.error("Please try agiain!");
+    //       setError("Please try again!");
+    //       setName("");
+    //       setEmail("");
+    //       setPassword("");
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //     setName();
+    //     setEmail();
+    //     setPassword();
+    //     setError("Please try again!");
+    //   });
   }
 
   function handleLogin() {
