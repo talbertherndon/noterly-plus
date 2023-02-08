@@ -10,7 +10,7 @@ export async function signUp(data) {
             return res
         })
     } catch (e) {
-       
+
 
         throw (e);
     }
@@ -29,11 +29,10 @@ export async function createSet(payload) {
     }
 }
 
-export async function getSets() {
-    const { token } = await getSession();
-
+export async function editSet(payload,set_id) {
+    console.log(payload);
     try {
-        return await axios.get(API_BASE_URL + "/sets", { token }).then((res) => {
+        return await axios.post(API_BASE_URL + "/sets", payload).then((res) => {
             console.log(res);
             return res
         })
@@ -43,12 +42,33 @@ export async function getSets() {
         throw (e);
     }
 }
-
-
-export async function getMySets(user_id) {
+export async function getSets() {
 
     try {
-        return await axios.get(API_BASE_URL + `/sets_by_user?user_id=${user_id}`).then((res) => {
+        return await axios.get(API_BASE_URL + "/sets").then((res) => {
+            console.log(res);
+            return res
+        })
+
+    } catch (e) {
+        console.log(e)
+        throw (e);
+    }
+}
+export async function getSet(set_id) {
+    try {
+        return await axios.get(API_BASE_URL + '/sets/' + set_id )
+    } catch (e) {
+        console.log(e);
+        throw (e);
+    }
+}
+
+export async function getMySets(user_id) {
+    const { token } = await getSession();
+
+    try {
+        return await axios.get(API_BASE_URL + `/sets_by_user?user_id=${user_id}`, { token }).then((res) => {
             console.log(res);
             return res
         })

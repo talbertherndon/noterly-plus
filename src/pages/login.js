@@ -43,31 +43,6 @@ export default function Login({ data }) {
       }
       console.log(res)
     }).catch((e) => { toast.error(e.response.data?.message); console.log(e); })
-
-    // signUp("credentials", {
-    //   ...data,
-    //   redirect: false,
-    //   callbackUrl: "/",
-    // })
-    //   .then((res) => {
-    //     console.log(res);
-    //     if (res.ok) {
-    //       router.push("/components");
-    //     } else {
-    //       toast.error("Please try agiain!");
-    //       setError("Please try again!");
-    //       setName("");
-    //       setEmail("");
-    //       setPassword("");
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     setName();
-    //     setEmail();
-    //     setPassword();
-    //     setError("Please try again!");
-    //   });
   }
 
   function handleLogin() {

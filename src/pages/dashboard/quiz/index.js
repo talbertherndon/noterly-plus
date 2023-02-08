@@ -1,10 +1,10 @@
 import Header from "@/components/Header";
 import useWindowDimensions from "@/contexts/hooks/useWindowDimensions";
-import { Box, Chip, TextField, Typography, Button, Select, FormControl, InputLabel, MenuItem, Radio, IconButton } from "@mui/material";
+import { Box, Chip, TextField, Typography, Button, Select, FormControl, InputLabel, MenuItem, Radio, IconButton, Divider } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Carousel from 'react-material-ui-carousel';
-import { media } from '../../mock/images';
+import { media } from '../../../mock/images';
 import { motion } from 'framer-motion';
 import { createSet } from "@/utils/api";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -22,7 +22,7 @@ export default function Quiz({ data }) {
         photo: '',
         questions: []
     })
-    const [type, setType] = useState();
+    const [type, setType] = useState('multi');
     const [questions, setQuestions] = useState([])
     const [choices, setChoices] = useState([])
     const [question, setQuestion] = useState('')
@@ -33,15 +33,15 @@ export default function Quiz({ data }) {
 
 
     function createSetHandler() {
+        setSet({ ...set, questions: questions })
         console.log(set)
-        console.log(questions)
-        // createSet(set).then((res) => {
-        //     console.log("SET CREATED")
-        //     console.log(res)
-        //     router.push("/dashboard")
-        // }).catch((e) => {
-        //     toast.error("Set is not finished!")
-        // })
+        createSet(set).then((res) => {
+            console.log("SET CREATED")
+            console.log(res)
+            router.push("/dashboard")
+        }).catch((e) => {
+            toast.error("Set is not finished!")
+        })
     }
 
     useEffect(() => {
@@ -50,10 +50,6 @@ export default function Quiz({ data }) {
 
     }, [imageIndex])
 
-    function choicesHandler(e) {
-        console.log(e)
-
-    }
 
     const updateFieldChanged = index => e => {
         console.log('index: ' + index);
@@ -97,7 +93,8 @@ export default function Quiz({ data }) {
 
     }, [choices])
 
-    return (<Box>
+    return (
+    <Box>
         <Header />
         <Box
             sx={{
@@ -195,10 +192,10 @@ export default function Quiz({ data }) {
                                 <Box sx={{ p: 2, border: 1, borderRadius: 3, my: 2, borderColor: "white", display: 'flex' }}>
                                     <Box>
                                         <Typography>
-                                            {res.question}
+                                            Question: {res.question}
 
                                         </Typography>
-                                        <Typography>{res.answer}</Typography>
+                                        <Typography>Correct Answer: {res.answer}</Typography>
                                     </Box>
                                     <IconButton onClick={() => { setQuestions(questions.filter((r) => { return r != res })) }} sx={{ ml: "auto" }}>
                                         <DeleteIcon />
@@ -210,11 +207,11 @@ export default function Quiz({ data }) {
                             <Box sx={{ display: 'flex' }}>
                                 <TextField value={question} onChange={(e) => { setQuestion(e.target.value) }} sx={{ flex: 2, mr: 1 }} size="small" placeholder="Untiled Question" />
                                 <FormControl sx={{ flex: 1, ml: 1 }} size="small">
-                                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                                    <InputLabel id="demo-simple-select-label">Type</InputLabel>
                                     <Select labelId="demo-simple-select-label"
                                         id="demo-simple-select"
                                         value={type}
-                                        label="Age"
+                                        label="Type"
                                         onChange={(e) => { setType(e.target.value) }} >
                                         <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem>
                                     </Select>
@@ -243,13 +240,14 @@ export default function Quiz({ data }) {
                                     } else {
                                         toast.info("Max is 4 multiple choice")
                                     }
-                                }} clickable label="Add Choice" />
+                                }} clickable disabled={choices.length < 4 ? false : true} label="Add Choice" />
                             </Box>
                         </Box>
                     </Box>
+                    <Divider sx={{ my: 2 }} />
 
-                    <Box>
-                        <Chip clickable onClick={addQuestionHandler} label="Add Question" />
+                    <Box sx={{ my: 2 }}>
+                        <Chip disabled={question && selectedValue ? false : true} clickable onClick={addQuestionHandler} label="Add Question" />
                     </Box>
                     <Box>
                         <Button variant="contained" onClick={createSetHandler}>Create Quiz</Button>

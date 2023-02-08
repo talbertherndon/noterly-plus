@@ -68,7 +68,7 @@ export default function Dashboard({ data }) {
                       },
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      borderRadius: 5,
+                      borderRadius: 3,
                       backgroundColor: 'white',
                       m: 1
                     }}>
@@ -97,30 +97,35 @@ export default function Dashboard({ data }) {
                       >
                         <Box
                           sx={{
+                            maxHeight: 330,
                             overflow: 'hidden',
                             cursor: 'pointer',
-                            borderRadius: 5,
+                            borderRadius: 3,
                             backgroundColor: 'white',
                             m: 1
                           }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', overflow: 'hidden', maxWidth: width / 2 }}>
-                            {/* <Tooltip title={`Created by ${row._user.firstname} ${row._user.lastname}`}>
-                            <Avatar sx={{ fontSize: 14, position: 'absolute', mt: 1, mr: 1 }} src={row._user.photo_url} alt={row._user.firstname[0]} />
-                          </Tooltip> */}
-                            <Box sx={{ height: 270 }}>
-                              <motion.div animate={{ y: 10, scale: 1.08 }} whileHover={{ scale: 1.2 }}>
-                                <img
-                                  style={{ display: 'flex', height: 270, marginLeft: 'auto', marginRight: 'auto', objectFit: 'cover' }}
-                                  src={res.photo == '' ? '' : res.photo}
-                                />
-                              </motion.div>
+
+                          <Box sx={{ justifyContent: 'flex-end', overflow: 'hidden', maxWidth: width / 2 }}>
+
+                            <motion.div animate={{ y: 10, scale: 1.02 }} whileHover={{ scale: 1.04 }}>
+                              <img
+                                style={{ display: 'flex', height: 200, marginLeft: 'auto', marginRight: 'auto', objectFit: 'cover', width: '100%' }}
+                                src={res.photo == '' ? '' : res.photo}
+                              />
+
+                            </motion.div>
+
+                            <Box sx={{ display: 'flex', p: 1, height: 50, mt: 2 }}>
+                              <Button sx={{ flex: 1, mr: 1 }} onClick={() => { console.log("Edit"); router.push(`/dashboard/quiz/${res.id}`) }} >Edit</Button>
+                              <Button variant={"contained"}>Host</Button>
                             </Box>
                           </Box>
-                          <Box sx={{ p: 1, height: 60, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                          <Box sx={{ p: 1, height: 60, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
                             <Typography sx={{ display: '-webkit-box', overflow: 'hidden', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, fontWeight: 400, fontSize: 12 }}>
                               {res?.description.toLowerCase()}
                             </Typography>
                           </Box>
+
                         </Box>
                       </motion.div>
                     </Grid>
