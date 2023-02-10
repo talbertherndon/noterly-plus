@@ -29,10 +29,10 @@ export async function createSet(payload) {
     }
 }
 
-export async function editSet(payload,set_id) {
+export async function editSet(payload, set_id) {
     console.log(payload);
     try {
-        return await axios.post(API_BASE_URL + "/sets", payload).then((res) => {
+        return await axios.post(API_BASE_URL + `/sets/${set_id}`, payload).then((res) => {
             console.log(res);
             return res
         })
@@ -57,7 +57,7 @@ export async function getSets() {
 }
 export async function getSet(set_id) {
     try {
-        return await axios.get(API_BASE_URL + '/sets/' + set_id )
+        return await axios.get(API_BASE_URL + '/sets/' + set_id)
     } catch (e) {
         console.log(e);
         throw (e);
