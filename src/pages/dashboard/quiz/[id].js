@@ -1,18 +1,28 @@
 import Header from "@/components/Header";
 import useWindowDimensions from "@/contexts/hooks/useWindowDimensions";
-import { Box, Chip, TextField, Typography, Button, Select, FormControl, InputLabel, MenuItem, Radio, IconButton, Divider } from "@mui/material";
+import {
+    Box,
+    Chip,
+    TextField,
+    Typography,
+    Button,
+    Select,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Radio,
+    IconButton,
+    Divider,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Carousel from 'react-material-ui-carousel';
-import { media } from '../../../mock/images';
-import { motion } from 'framer-motion';
-import { createSet, getSet } from "@/utils/api";
-import DeleteIcon from '@mui/icons-material/Delete';
+import Carousel from "react-material-ui-carousel";
+import { media } from "../../../mock/images";
+import { motion } from "framer-motion";
+import { createSet, editSet, getSet } from "@/utils/api";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { getSession } from "next-auth/react";
 import { toast } from "react-toastify";
-
-
-
 
 export default function editQuiz({ data }) {
     const router = useRouter();
@@ -22,16 +32,26 @@ export default function editQuiz({ data }) {
         name: "",
         description: "",
         user_id: data?.user.id,
-        photo: '',
-        questions: []
+        photo: "",
+        questions: [],
     });
-    const [questions, setQuestions] = useState([])
-    const [question, setQuestion] = useState('');
-    const [type, setType] = useState('multi');
-    const [choices, setChoices] = useState([])
-    const [selectedValue, setSelectedValue] = useState()
+    const [questions, setQuestions] = useState([]);
+    const [question, setQuestion] = useState("");
+    const [type, setType] = useState("multi");
+    const [choices, setChoices] = useState([]);
+    const [selectedValue, setSelectedValue] = useState();
 
 
+    function editSetHandler() {
+        console.log(set)
+        editSet(set, id).then((res) => {
+            toast.success("Set was successfully saved!")
+            console.log(res)
+        }).catch((e) => {
+            console.log(e)
+        })
+
+    }
     function addQuestionHandler() {
         if (choices[selectedValue]) {
             const cur_question = {
@@ -39,56 +59,65 @@ export default function editQuiz({ data }) {
                 type,
                 choices,
                 answer: choices[selectedValue],
-                index: questions.length
-            }
-            console.log(cur_question)
-            setQuestions(prev => [...prev, cur_question])
-            setChoices([])
-            setQuestion('')
-            setType()
-            console.log(questions)
-
+                index: questions.length,
+            };
+            console.log(cur_question);
+            setQuestions((prev) => [...prev, cur_question]);
+            setChoices([]);
+            setQuestion("");
+            setType('');
+            console.log(questions);
         } else {
-            toast.error("Please select an answer")
+            toast.error("Please select an answer");
         }
+    }
 
-    }
-    function editSetHandler() {
-        // setSet({ ...set, questions: questions })
-        // console.log(set)
-        // eduit(set, set.id).then((res) => {
-        //     console.log("SET CREATED")
-        //     console.log(res)
-        //     router.push("/dashboard")
-        // }).catch((e) => {
-        //     toast.error("Set is not finished!")
-        // })
-    }
-    const updateFieldChanged = index => e => {
-        console.log('index: ' + index);
-        console.log('property value: ' + e.target.value);
+    useEffect(() => {
+        setSet({ ...set, questions: questions });
+    }, [questions]);
+
+
+    const updateFieldChanged = (index) => (e) => {
+        console.log("index: " + index);
+        console.log("property value: " + e.target.value);
         let newArr = [...choices]; // copying the old datas array
         // a deep copy is not needed as we are overriding the whole object below, and not setting a property of it. this does not mutate the state.
         newArr[index] = e.target.value.toLowerCase(); // replace e.target.value with whatever you want to change it to
         setChoices(newArr);
+    };
+
+    const updateFieldChangedAnswer = (index) => (e) => {
+        console.log("index: " + index);
+        setSelectedValue(e.target.value);
+        console.log("property isAnswer: " + e.target.value);
+        console.log(choices);
+    };
+
+    function changeTypeHandler(e) {
+        setChoices([]);
+        console.log(e.target.value);
+        if (e.target.value == "multi") {
+            setType(e.target.value);
+        }
+        if (e.target.value == "truefalse") {
+            setType(e.target.value);
+            setChoices([`True`, `False`]);
+        }
+        if (e.target.value == "fillinblank") {
+            setType(e.target.value);
+        }
     }
 
-    const updateFieldChangedAnswer = index => e => {
-        console.log('index: ' + index);
-        setSelectedValue(e.target.value)
-        console.log('property isAnswer: ' + e.target.value);
-        console.log(choices)
 
-    }
     useEffect(() => {
         if (id) {
             getSet(id).then((res) => {
-                console.log(res)
-                setSet(res.data.sets)
-                setQuestions(res.data.questions)
-            })
+                console.log(res);
+                setSet(res.data.sets);
+                setQuestions(res.data.questions);
+            });
         }
-    }, [id])
+    }, [id]);
 
     return (
         <Box>
@@ -125,16 +154,35 @@ export default function editQuiz({ data }) {
                                 fontStyle: "bold",
                             }}
                         >
-                            Edit Quiz
+                            Edit Set
                         </Typography>
                         <Box sx={{ maxWidth: 300, my: 2 }}>
-                            <Box sx={{ borderRadius: 4, overflow: 'hidden', width: 150, height: 150, boxShadow: 3 }}>
-                                <Box sx={{ height: 150, overflow: 'hidden' }}>
-                                    <motion.div animate={{ y: 0, scale: 1.1 }} whileHover={{ scale: 1.5 }}>
-                                        <img style={{ display: 'block', width: '100%', marginLeft: 'auto', marginRight: 'auto', objectFit: 'fill' }} src={set.photo} />
+                            <Box
+                                sx={{
+                                    borderRadius: 4,
+                                    overflow: "hidden",
+                                    width: 150,
+                                    height: 150,
+                                    boxShadow: 3,
+                                }}
+                            >
+                                <Box sx={{ height: 150, overflow: "hidden" }}>
+                                    <motion.div
+                                        animate={{ y: 0, scale: 1.1 }}
+                                        whileHover={{ scale: 1.5 }}
+                                    >
+                                        <img
+                                            style={{
+                                                display: "block",
+                                                width: "100%",
+                                                marginLeft: "auto",
+                                                marginRight: "auto",
+                                                objectFit: "fill",
+                                            }}
+                                            src={set.photo}
+                                        />
                                     </motion.div>
                                 </Box>
-
                             </Box>
                             {/* <Carousel
                                 index={imageIndex}
@@ -162,7 +210,7 @@ export default function editQuiz({ data }) {
                                 ))}
                             </Carousel> */}
                         </Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Box sx={{ display: "flex", flexDirection: "column" }}>
                             <TextField
                                 size="small"
                                 placeholder="Name"
@@ -190,83 +238,148 @@ export default function editQuiz({ data }) {
                             </Typography>
                         </Box>
 
-
                         <Box sx={{ maxWidth: 600 }}>
                             {questions.map((res) => {
                                 return (
-                                    <Box sx={{ p: 2, border: 1, borderRadius: 3, my: 2, borderColor: "white", display: 'flex' }}>
+                                    <Box
+                                        sx={{
+                                            p: 2,
+                                            border: 1,
+                                            borderRadius: 3,
+                                            my: 2,
+                                            borderColor: "white",
+                                            display: "flex",
+                                        }}
+                                    >
                                         <Box>
-                                            <Typography>
-                                                Question: {res.question}
-
-                                            </Typography>
+                                            <Typography>Question: {res.question}</Typography>
                                             <Typography>Correct Answer: {res.answer}</Typography>
                                         </Box>
-                                        <IconButton onClick={() => { setQuestions(questions.filter((r) => { return r != res })) }} sx={{ ml: "auto" }}>
+                                        <IconButton
+                                            onClick={() => {
+                                                setQuestions(
+                                                    questions.filter((r) => {
+                                                        return r != res;
+                                                    })
+                                                );
+                                            }}
+                                            sx={{ ml: "auto" }}
+                                        >
                                             <DeleteIcon />
                                         </IconButton>
                                     </Box>
-                                )
+                                );
                             })}
                             <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                <Box sx={{ display: 'flex' }}>
-                                    <TextField value={question} onChange={(e) => { setQuestion(e.target.value) }} sx={{ flex: 2, mr: 1 }} size="small" placeholder="Untiled Question" />
+                                <Box sx={{ display: "flex" }}>
+                                    <TextField
+                                        value={question}
+                                        onChange={(e) => {
+                                            setQuestion(e.target.value);
+                                        }}
+                                        sx={{ flex: 2, mr: 1 }}
+                                        size="small"
+                                        placeholder="Untiled Question"
+                                    />
                                     <FormControl sx={{ flex: 1, ml: 1 }} size="small">
-                                        <InputLabel id="demo-simple-select-label">Type</InputLabel>
-                                        <Select labelId="demo-simple-select-label"
+                                        <InputLabel id="demo-simple-select-label">Question Type</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                             value={type}
-                                            label="Type"
-                                            onChange={(e) => { setType(e.target.value) }} >
-                                            <MenuItem defaultValue={true} value={'multi'}>Multiple Choice</MenuItem>
-                                            <MenuItem defaultValue={false} value={'truefalse'}>True or False</MenuItem>
-                                            <MenuItem defaultValue={false} value={'fillInBlank'}>Fill in Blank</MenuItem>
-                                            <MenuItem defaultValue={false} value={'matching'}>Matching</MenuItem>
+                                            label="Question Type"
+                                            onChange={changeTypeHandler}
+                                        >
+                                            <MenuItem defaultValue={true} value={"multi"}>
+                                                Multiple Choice
+                                            </MenuItem>
+                                            <MenuItem defaultValue={false} value={"truefalse"}>
+                                                True or False
+                                            </MenuItem>
+                                            <MenuItem defaultValue={false} value={"fillInBlank"}>
+                                                Fill in Blank
+                                            </MenuItem>
+                                            <MenuItem disabled defaultValue={false} value={"matching"}>
+                                                Matching
+                                            </MenuItem>
                                         </Select>
-                                    </FormControl >
+                                    </FormControl>
                                 </Box>
                                 {choices.map((res, index) => {
                                     return (
-                                        <Box sx={{ mt: 1, display: 'flex' }}>
-                                            <Radio checked={selectedValue == index}
+                                        <Box sx={{ mt: 1, display: "flex" }}>
+                                            <Radio
+                                                checked={selectedValue == index}
                                                 onChange={updateFieldChangedAnswer(index)}
-
                                                 value={index}
                                                 name="radio-buttons"
-                                                inputProps={{ 'aria-label': `${index}` }} />
-                                            <TextField size="small" value={res} onChange={updateFieldChanged(index)} />
-                                            <IconButton sx={{ alignSelf: 'center', ml: 1 }} onClick={() => { setChoices(choices.filter((r) => { return r != res })) }} >
-                                                <DeleteIcon sx={{ color: "black" }} />
-                                            </IconButton>
-                                        </Box>)
+                                                inputProps={{ "aria-label": `${index}` }}
+                                            />
+                                            <TextField
+                                                size="small"
+                                                value={res}
+                                                onChange={updateFieldChanged(index)}
+                                            />
+                                            {type != "truefalse" && (
+                                                <IconButton
+                                                    sx={{ alignSelf: "center", ml: 1 }}
+                                                    onClick={() => {
+                                                        setChoices(
+                                                            choices.filter((r) => {
+                                                                return r != res;
+                                                            })
+                                                        );
+                                                    }}
+                                                >
+                                                    <DeleteIcon sx={{ color: "black" }} />
+                                                </IconButton>
+                                            )}
+                                        </Box>
+                                    );
                                 })}
 
-                                <Box sx={{ my: 1 }}>
-                                    <Chip onClick={() => {
-                                        if (choices.length < 4) {
-                                            setChoices(choices => [...choices, `Choice ${choices.length + 1}`])
-                                        } else {
-                                            toast.info("Max is 4 multiple choice")
-                                        }
-                                    }} clickable disabled={choices.length < 4 ? false : true} label="Add Choice" />
-                                </Box>
+                                {type == "multi" && (
+                                    <Box sx={{ my: 1 }}>
+                                        <Chip
+                                            onClick={() => {
+                                                if (choices.length < 4) {
+                                                    setChoices((choices) => [
+                                                        ...choices,
+                                                        `Choice ${choices.length + 1}`,
+                                                    ]);
+                                                } else {
+                                                    toast.info("Max is 4 multiple choice");
+                                                }
+                                            }}
+                                            clickable
+                                            disabled={choices.length < 4 ? false : true}
+                                            label="Add Choice"
+                                        />
+                                    </Box>
+                                )}
                             </Box>
                         </Box>
                         <Divider sx={{ my: 2 }} />
 
                         <Box sx={{ my: 2 }}>
-                            <Chip disabled={question && selectedValue ? false : true} clickable onClick={addQuestionHandler} label="Add Question" />
+                            <Chip
+                                disabled={question && selectedValue ? false : true}
+                                clickable
+                                onClick={addQuestionHandler}
+                                label="Add Question"
+                            />
                         </Box>
                         <Box>
-                            <Button variant="contained" onClick={editSetHandler}>Save Quiz</Button>
+                            <Button variant="contained" onClick={editSetHandler}>
+                                Save Set
+                            </Button>
                         </Box>
                     </Box>
                 </Box>
             </Box>
         </Box>
-    )
+    );
 }
-
 
 export async function getServerSideProps({ req }) {
     const session = await getSession({ req });
