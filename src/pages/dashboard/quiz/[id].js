@@ -59,7 +59,7 @@ export default function editQuiz({ data }) {
                 type,
                 choices,
                 answer: choices[selectedValue],
-                index: questions.length,
+                index: questions.length + 1,
             };
             console.log(cur_question);
             setQuestions((prev) => [...prev, cur_question]);

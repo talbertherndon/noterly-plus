@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import useWindowDimensions from "@/contexts/hooks/useWindowDimensions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { media } from "../../mock/images";
-import { getMySets, getSets } from "@/utils/api";
+import { getMySets, getSets, joinSession, startSession } from "@/utils/api";
 import { getSession } from "next-auth/react";
 
 const style = {
@@ -44,6 +44,16 @@ export default function Dashboard({ data }) {
     });
   }, []);
 
+  function startSessionHandler() {
+    startSession(data?.user.id, selectedSet.id).then((res) => {
+      console.log(res);
+      //router.replace(`/session/${res.id}`)
+      joinSession(res.code, data?.user.id).then((res) => {
+        router.replace(`/session/${res.id}`);
+      });
+    });
+    // router.replace(`/session`)
+  }
   return (
     <>
       <Head>
@@ -140,10 +150,15 @@ export default function Dashboard({ data }) {
                   return (
                     <Grid item xs={1} sm={1} md={1} key={index}>
                       <motion.div
-                        animate={{ y: 2, scale: 1 }}
-                        transition={{ type: "spring", duration: 0.2 }}
-                        initial={{ scale: 0 }}
-                        whileHover={{ scale: 1.01 }}
+                        whileHover={{
+                          opacity: 0.8,
+                          translateY: -2,
+                        }}
+                        transition={{
+                          type: "spring",
+                          duration: 0.2,
+                          stiffness: 200,
+                        }}
                       >
                         <Box
                           sx={{
@@ -162,22 +177,17 @@ export default function Dashboard({ data }) {
                               maxWidth: width / 2,
                             }}
                           >
-                            <motion.div
-                              animate={{ y: 10, scale: 1.02 }}
-                              whileHover={{ scale: 1.04 }}
-                            >
-                              <img
-                                style={{
-                                  display: "flex",
-                                  height: 200,
-                                  marginLeft: "auto",
-                                  marginRight: "auto",
-                                  objectFit: "cover",
-                                  width: "100%",
-                                }}
-                                src={res.photo == "" ? "" : res.photo}
-                              />
-                            </motion.div>
+                            <img
+                              style={{
+                                display: "flex",
+                                height: 200,
+                                marginLeft: "auto",
+                                marginRight: "auto",
+                                objectFit: "cover",
+                                width: "100%",
+                              }}
+                              src={res.photo == "" ? "" : res.photo}
+                            />
 
                             <Box
                               sx={{ display: "flex", p: 1, height: 50, mt: 2 }}
@@ -249,9 +259,7 @@ export default function Dashboard({ data }) {
           </Typography>
           <Button
             sx={{ mt: 2 }}
-            onClick={() => {
-              router.replace(`/session/${selectedSet.id}`);
-            }}
+            onClick={startSessionHandler}
             variant={"contained"}
           >
             Continue

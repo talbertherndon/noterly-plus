@@ -88,3 +88,29 @@ export async function startSession(user_id, sets_id) {
     throw e;
   }
 }
+
+export async function joinSession(code, user_id) {
+  try {
+    return await axios
+      .get(API_BASE_URL + `/session?code=${code}&user_id=${user_id}`)
+      .then((res) => {
+        return res.data;
+      });
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function nextQuestion(user_id, sets_id) {
+  try {
+    return await axios
+      .post(API_BASE_URL + `/next?user_id=${user_id}&sets_id=${sets_id}`)
+      .then((res) => {
+        return res.data;
+      });
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
