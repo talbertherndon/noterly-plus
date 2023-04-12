@@ -48,8 +48,10 @@ export default function Dashboard({ data }) {
     startSession(data?.user.id, selectedSet.id).then((res) => {
       console.log(res);
       //router.replace(`/session/${res.id}`)
+      
       joinSession(res.code, data?.user.id).then((res) => {
-        router.replace(`/session/${res.id}`);
+        console.log(res)
+        router.replace(`/session/${res.sets.id}-${res.session.id}`);
       });
     });
     // router.replace(`/session`)

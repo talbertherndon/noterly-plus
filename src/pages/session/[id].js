@@ -1,4 +1,12 @@
-import { getSet, nextQuestion, startSession } from "@/utils/api";
+import {
+  endSession,
+  getSet,
+  nextQuestion,
+  postAnswer,
+  startSession,
+} from "@/utils/api";
+import Image from "next/image";
+
 import {
   Box,
   Button,
@@ -22,24 +30,27 @@ configureAbly({
 export default function Session({ data }) {
   const router = useRouter();
   const { id } = router.query;
+
   const [session, setSession] = useState();
   const [users, setUsers] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [question, setQuestion] = useState();
   const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState([]);
+  const [answer, setAnswer] = useState();
   const color = ["red", "blue", "green", "yellow"];
 
   const [channel] = useChannel(`${session?.code}`, (message) => {
     console.log(message.name);
     if (message.name == "join-session") {
-      getSet(id).then((res) => {
+      getSet(id.split("-")[0]).then((res) => {
         console.log(res.data);
         setUsers(res.data.users);
       });
     }
     if (message.name == "next") {
       console.log("ADMIN MOVED TO NEXT QUESTION");
-      getSet(id).then((res) => {
+      getSet(id.split("-")[0]).then((res) => {
         console.log(res.data.questions[res.data.sets.current - 1]);
         setSession(res.data.sets);
         setQuestion(res.data.questions[res.data.sets.current - 1]);
@@ -53,12 +64,24 @@ export default function Session({ data }) {
       //   setQuestion(res.data.questions[res.data.sets.current - 1]);
       // });
     }
+    if (message.name == "responses") {
+      console.log("ADMIN ENDED SEMINARY");
+      console.log(message.data);
+      setAnswers(message.data);
+    }
+    if (message.name == "end") {
+      router.push("/");
+    }
   });
+
+  function responseCheck() {
+    // needs to be updated by alby and check all the response and when its at max let teach know,
+  }
 
   //STARTING SESSION
 
   useEffect(() => {
-    getSet(id).then((res) => {
+    getSet(id.split("-")[0]).then((res) => {
       console.log(res.data);
       if (res.data.sets.user_id == data.user.id) {
         console.log("admin");
@@ -81,19 +104,55 @@ export default function Session({ data }) {
     console.log(question);
   }, [session]);
 
+  useEffect(() => {
+    if (session) {
+      if (answers.length == users.length && session.current != 0) {
+        nextHandler();
+      }
+    }
+  }, [answers]);
+
   function nextHandler() {
     console.log("Starting Seminary");
-    nextQuestion(data.user.id, id).then((res) => {
-      console.log(res);
-    });
+    if (session.current < questions.length) {
+      nextQuestion(data.user.id, id.split("-")[0]).then((res) => {
+        console.log(res);
+        setAnswer();
+        setAnswers([]);
+      });
+    } else {
+      console.log("End of Quiz Totaling points!");
+    }
   }
 
   function endHanlder() {
     console.log("Ending Seminary");
-    router.push("/")
+    endSession(data.user.id, session.id).then((res) => {
+      router.push("/");
+    });
   }
+
   function handleAnswer(res) {
     console.log(res);
+    console.log(question.answer == res);
+    console.log(session);
+
+    //validate session to make sure user is real --- /{id}
+    const payload = {
+      user_id: data.user.id,
+      session_id: id.split("-")[1],
+      sets_id: question.sets_id,
+      questions_id: question.id,
+      correct: question.answer == res ? true : false,
+      response: res,
+    };
+
+    console.log(payload);
+
+    postAnswer(payload).then((res) => {
+      console.log(res);
+      setAnswer(res);
+    });
   }
 
   if (session) {
@@ -124,9 +183,18 @@ export default function Session({ data }) {
                   ) : (
                     <>
                       {session.current < questions.length ? (
-                        <Button onClick={nextHandler} variant="contained">
-                          Next
-                        </Button>
+                        <>
+                          <Button onClick={nextHandler} variant="contained">
+                            Next
+                          </Button>
+                          <Button
+                            sx={{ ml: 3 }}
+                            onClick={endHanlder}
+                            variant="outlined"
+                          >
+                            End
+                          </Button>
+                        </>
                       ) : (
                         <Button onClick={endHanlder} variant="contained">
                           End
@@ -137,7 +205,7 @@ export default function Session({ data }) {
                 </>
               )}{" "}
             </Box>
-            {session.current < 0 ? (
+            {session.current == 0 ? (
               <>
                 <Box
                   sx={{
@@ -283,64 +351,155 @@ export default function Session({ data }) {
               </>
             ) : (
               <>
-                <Box
-                  sx={{
-                    justifyContent: "center",
-                    display: "flex",
-                    alignContent: "center",
-                  }}
-                >
-                  <Typography variant="body1">{session.current}</Typography>
-                  <Typography sx={{ fontSize: 40, fontWeight: 600 }}>
-                    {question?.question}
-                  </Typography>
-                </Box>
-                <Box sx={{}}>
-                  <Grid
-                    sx={{
-                      my: 1,
-                      alignItems: "center",
-                    }}
-                    container
-                    spacing={2}
-                    columns={{ xs: 2, sm: 4, md: 8 }}
-                  >
-                    {question?.options.map((res, index) => {
-                      return (
-                        <Grid item xs={1} sm={2} md={4}>
-                          <Box
-                            onClick={() => {
-                              handleAnswer(res);
-                            }}
-                            sx={{
-                              "&:hover": { opacity: 0.7 },
-                              borderRadius: 2,
-                              display: "flex",
-                              backgroundColor: color[index],
-                              cursor: "pointer",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              p: 1,
-                              borderRadius: 2,
-                              alignSelf: "center",
-                              border: 1,
-                              borderColor: "#DADADA",
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                color: "white",
-                                fontWeight: 600,
-                                fontSize: 20,
-                              }}
-                            >
-                              {res}
-                            </Typography>
-                          </Box>
-                        </Grid>
-                      );
-                    })}
-                  </Grid>
+                {session.current < questions.length ? (
+                  <>
+                    <Box
+                      sx={{
+                        justifyContent: "center",
+                        display: "flex",
+                        alignContent: "center",
+                      }}
+                    >
+                      <Typography variant="body1">{session.current}</Typography>
+                      <Typography sx={{ fontSize: 40, fontWeight: 600 }}>
+                        {question?.question}
+                      </Typography>
+                    </Box>
+                    <Box sx={{}}>
+                      <Grid
+                        sx={{
+                          my: 1,
+                          alignItems: "center",
+                        }}
+                        container
+                        spacing={2}
+                        columns={{ xs: 2, sm: 4, md: 8 }}
+                      >
+                        {question?.options.map((res, index) => {
+                          return (
+                            <Grid item xs={1} sm={2} md={4}>
+                              <Box
+                                onClick={() => {
+                                  if (!answer) {
+                                    handleAnswer(res);
+                                  }
+                                }}
+                                sx={{
+                                  "&:hover": { opacity: 0.7 },
+                                  borderRadius: 2,
+                                  display: "flex",
+                                  backgroundColor:
+                                    answer?.response != res
+                                      ? color[index]
+                                      : "#dadada",
+                                  cursor: answer ? "" : "pointer",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  p: 1,
+                                  borderRadius: 2,
+                                  alignSelf: "center",
+                                  border: 1,
+                                  borderColor: "#DADADA",
+                                  opacity: answer ? 0.7 : 1,
+                                }}
+                              >
+                                <Typography
+                                  sx={{
+                                    color: "white",
+                                    fontWeight: 600,
+                                    fontSize: 20,
+                                  }}
+                                >
+                                  {res}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </Box>
+                  </>
+                ) : (
+                  <>
+                    {" "}
+                    <Box
+                      sx={{
+                        backgroundColor: "white",
+                        p: 3,
+                        borderRadius: 3,
+                        height: 200,
+                        m: 1,
+                        display:'flex'
+                      }}
+                    >
+                      {" "}
+                      <Image
+                        src="/images/gold.png"
+                        alt="Gold"
+                        width={100}
+                        height={100}
+                      />
+                      <Box>
+                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
+                          1st Place Winner:
+                        </Typography>
+                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
+                          {users[0].user.name}
+                        </Typography>
+                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
+                          {users[0].points} Points!
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {users[1] && (
+                      <Box
+                        sx={{
+                          backgroundColor: "white",
+                          p: 3,
+                          borderRadius: 3,
+                          height: 200,
+                          m: 1,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
+                          2nd Place Winner:
+                        </Typography>
+                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
+                          {users[1].user.name}
+                        </Typography>
+                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
+                          {users[1].points} Points!
+                        </Typography>
+                      </Box>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+            {session.current != 0 && session.current < questions.length && (
+              <>
+                <Box sx={{ display: "flex", justifyContent: "center" }}>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 700,
+                        textAlign: "center",
+                        fontSize: 20,
+                      }}
+                    >
+                      Answers
+                    </Typography>
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        textAlign: "center",
+                        fontSize: 20,
+                      }}
+                    >
+                      {answers.length}/{users.length}
+                    </Typography>
+                  </Box>{" "}
                 </Box>
               </>
             )}

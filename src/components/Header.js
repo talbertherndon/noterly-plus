@@ -54,7 +54,7 @@ export default function Header({ user }) {
               }}
             variant="contained"
           >
-            <Typography>Create a Set</Typography>
+            <Typography>Manage Sets</Typography>
           </Button>
   
         </Box>

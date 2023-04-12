@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { getSession } from "next-auth/react";
 import Header from "@/components/Header";
 import { joinSession } from "@/utils/api";
+import { toast } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +24,11 @@ export default function Home({ data }) {
     if (data) {
       joinSession(code, data.user.id).then((res) => {
         console.log(res);
-        router.push(`/session/${res.id}`);
+        if (res?.sets) {
+          router.push(`/session/${res.sets.id}-${res.session.id}`);
+        } else {
+          toast.info("Session code does not exist!")
+        }
       });
     }
   }
