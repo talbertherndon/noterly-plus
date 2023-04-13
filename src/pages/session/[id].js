@@ -38,6 +38,7 @@ export default function Session({ data }) {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [answer, setAnswer] = useState();
+  const [time, setTime] = useState(30);
   const color = ["red", "blue", "green", "yellow"];
 
   const [channel] = useChannel(`${session?.code}`, (message) => {
@@ -54,10 +55,12 @@ export default function Session({ data }) {
         console.log(res.data.questions[res.data.sets.current - 1]);
         setSession(res.data.sets);
         setQuestion(res.data.questions[res.data.sets.current - 1]);
+        //countdown(res.data.questions[res.data.sets.current - 1]);
+        setTime(res.data.questions[res.data.sets.current - 1].time);
       });
     }
     if (message.name == "end") {
-      console.log("ADMIN ENDED SEMINARY");
+      console.log("ADMIN ENDED noterly");
       // getSet(id).then((res) => {
       //   console.log(res.data.questions[res.data.sets.current - 1]);
       //   setSession(res.data.sets);
@@ -65,7 +68,6 @@ export default function Session({ data }) {
       // });
     }
     if (message.name == "responses") {
-      console.log("ADMIN ENDED SEMINARY");
       console.log(message.data);
       setAnswers(message.data);
     }
@@ -79,6 +81,23 @@ export default function Session({ data }) {
   }
 
   //STARTING SESSION
+
+  useEffect(() => {
+    if (session) {
+      console.log(session.current);
+      console.log(questions.length);
+
+      if (session.current != 0 || session.current < questions.length) {
+        console.log(time);
+        if (time == 0 && isAdmin) {
+          nextHandler();
+        }
+        const timer = time > 0 && setInterval(() => setTime(time - 1), 1000);
+
+        return () => clearInterval(timer);
+      }
+    }
+  }, [time]);
 
   useEffect(() => {
     getSet(id.split("-")[0]).then((res) => {
@@ -113,7 +132,7 @@ export default function Session({ data }) {
   }, [answers]);
 
   function nextHandler() {
-    console.log("Starting Seminary");
+    console.log("Starting noterly");
     if (session.current < questions.length) {
       nextQuestion(data.user.id, id.split("-")[0]).then((res) => {
         console.log(res);
@@ -126,7 +145,7 @@ export default function Session({ data }) {
   }
 
   function endHanlder() {
-    console.log("Ending Seminary");
+    console.log("Ending noterly");
     endSession(data.user.id, session.id).then((res) => {
       router.push("/");
     });
@@ -355,6 +374,22 @@ export default function Session({ data }) {
                   <>
                     <Box
                       sx={{
+                        backgroundColor: "white",
+                        p: 3,
+                        borderRadius: 3,
+                        height: 200,
+                        m: 1,
+                      }}
+                    >
+                      <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
+                        TIME LEFT:
+                      </Typography>
+                      <Typography sx={{ fontSize: 75, fontWeight: 700 }}>
+                        {time}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
                         justifyContent: "center",
                         display: "flex",
                         alignContent: "center",
@@ -429,7 +464,7 @@ export default function Session({ data }) {
                         borderRadius: 3,
                         height: 200,
                         m: 1,
-                        display:'flex'
+                        display: "flex",
                       }}
                     >
                       {" "}
@@ -497,7 +532,7 @@ export default function Session({ data }) {
                         fontSize: 20,
                       }}
                     >
-                      {answers.length}/{users.length}
+                      {answers.length}
                     </Typography>
                   </Box>{" "}
                 </Box>
