@@ -39,6 +39,8 @@ export default function Session({ data }) {
   const [answers, setAnswers] = useState([]);
   const [answer, setAnswer] = useState();
   const [time, setTime] = useState(0);
+
+  const [end, setEnd] = useState(false);
   const color = ["red", "blue", "green", "yellow"];
 
   const [channel] = useChannel(`${session?.code}`, (message) => {
@@ -53,8 +55,9 @@ export default function Session({ data }) {
       console.log("ADMIN MOVED TO NEXT QUESTION");
       getSet(id.split("-")[0]).then((res) => {
         console.log(res.data.questions[res.data.sets.current - 1]);
+        setSession(res.data.sets);
+
         if (res.data.questions[res.data.sets.current - 1]) {
-          setSession(res.data.sets);
           setQuestion(res.data.questions[res.data.sets.current - 1]);
           //countdown(res.data.questions[res.data.sets.current - 1]);
           setTime(res.data.questions[res.data.sets.current - 1].time);
@@ -376,29 +379,28 @@ export default function Session({ data }) {
                   <>
                     <Box
                       sx={{
+                        my: 1,
                         backgroundColor: "white",
                         p: 3,
                         borderRadius: 3,
                         height: 200,
                         m: 1,
+                        display: "flex",
                       }}
                     >
-                      <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
-                        TIME LEFT:
-                      </Typography>
-                      <Typography sx={{ fontSize: 75, fontWeight: 700 }}>
-                        {time}
-                      </Typography>
                       <Box>
+                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
+                          TIME LEFT:
+                        </Typography>
+                        <Typography sx={{ fontSize: 75, fontWeight: 700 }}>
+                          {time}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", ml: "auto" }}>
                         {session.current != 0 &&
                           session.current <= questions.length && (
                             <>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
+                              <Box>
                                 <Box>
                                   <Typography
                                     variant="body2"
