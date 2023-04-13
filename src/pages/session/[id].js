@@ -38,7 +38,7 @@ export default function Session({ data }) {
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState([]);
   const [answer, setAnswer] = useState();
-  const [time, setTime] = useState(30);
+  const [time, setTime] = useState(0);
   const color = ["red", "blue", "green", "yellow"];
 
   const [channel] = useChannel(`${session?.code}`, (message) => {
@@ -53,10 +53,12 @@ export default function Session({ data }) {
       console.log("ADMIN MOVED TO NEXT QUESTION");
       getSet(id.split("-")[0]).then((res) => {
         console.log(res.data.questions[res.data.sets.current - 1]);
-        setSession(res.data.sets);
-        setQuestion(res.data.questions[res.data.sets.current - 1]);
-        //countdown(res.data.questions[res.data.sets.current - 1]);
-        setTime(res.data.questions[res.data.sets.current - 1].time);
+        if (res.data.questions[res.data.sets.current - 1]) {
+          setSession(res.data.sets);
+          setQuestion(res.data.questions[res.data.sets.current - 1]);
+          //countdown(res.data.questions[res.data.sets.current - 1]);
+          setTime(res.data.questions[res.data.sets.current - 1].time);
+        }
       });
     }
     if (message.name == "end") {
@@ -84,9 +86,6 @@ export default function Session({ data }) {
 
   useEffect(() => {
     if (session) {
-      console.log(session.current);
-      console.log(questions.length);
-
       if (session.current != 0 || session.current < questions.length) {
         console.log(time);
         if (time == 0 && isAdmin) {
@@ -133,13 +132,16 @@ export default function Session({ data }) {
 
   function nextHandler() {
     console.log("Starting noterly");
-    if (session.current < questions.length) {
+    if (session.current <= questions.length) {
       nextQuestion(data.user.id, id.split("-")[0]).then((res) => {
         console.log(res);
         setAnswer();
         setAnswers([]);
       });
     } else {
+      console.log(session);
+      console.log(questions);
+      //session.current++;
       console.log("End of Quiz Totaling points!");
     }
   }
@@ -201,10 +203,10 @@ export default function Session({ data }) {
                     </Button>
                   ) : (
                     <>
-                      {session.current < questions.length ? (
+                      {session.current <= questions.length ? (
                         <>
                           <Button onClick={nextHandler} variant="contained">
-                            Next
+                            Skip
                           </Button>
                           <Button
                             sx={{ ml: 3 }}
@@ -370,7 +372,7 @@ export default function Session({ data }) {
               </>
             ) : (
               <>
-                {session.current < questions.length ? (
+                {session.current <= questions.length ? (
                   <>
                     <Box
                       sx={{
@@ -387,6 +389,41 @@ export default function Session({ data }) {
                       <Typography sx={{ fontSize: 75, fontWeight: 700 }}>
                         {time}
                       </Typography>
+                      <Box>
+                        {session.current != 0 &&
+                          session.current <= questions.length && (
+                            <>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <Box>
+                                  <Typography
+                                    variant="body2"
+                                    sx={{
+                                      fontWeight: 700,
+                                      textAlign: "center",
+                                      fontSize: 20,
+                                    }}
+                                  >
+                                    Answers
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      fontWeight: 700,
+                                      textAlign: "center",
+                                      fontSize: 20,
+                                    }}
+                                  >
+                                    {answers.length}
+                                  </Typography>
+                                </Box>{" "}
+                              </Box>
+                            </>
+                          )}
+                      </Box>
                     </Box>
                     <Box
                       sx={{
@@ -509,33 +546,6 @@ export default function Session({ data }) {
                     )}
                   </>
                 )}
-              </>
-            )}
-            {session.current != 0 && session.current < questions.length && (
-              <>
-                <Box sx={{ display: "flex", justifyContent: "center" }}>
-                  <Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontWeight: 700,
-                        textAlign: "center",
-                        fontSize: 20,
-                      }}
-                    >
-                      Answers
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontWeight: 700,
-                        textAlign: "center",
-                        fontSize: 20,
-                      }}
-                    >
-                      {answers.length}
-                    </Typography>
-                  </Box>{" "}
-                </Box>
               </>
             )}
           </Box>
