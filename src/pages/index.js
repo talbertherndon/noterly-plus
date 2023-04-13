@@ -1,19 +1,37 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import { Button,Box } from '@mui/material'
-import { useRouter } from 'next/router'
-import { useEffect } from 'react'
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "@next/font/google";
+import { Button, Box, CssBaseline, Typography, TextField } from "@mui/material";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { getSession } from "next-auth/react";
+import Header from "@/components/Header";
+import { joinSession } from "@/utils/api";
+import { toast } from "react-toastify";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
-export default function Home() {
+export default function Home({ data }) {
+  const [code, setCode] = useState("");
   const router = useRouter();
 
   useEffect(() => {
-    router.push("/login")
-  }, [])
-
+    // router.push("/login")
+  }, []);
+  function joinHandler() {
+    console.log(data.user);
+    if (data) {
+      joinSession(code, data.user.id).then((res) => {
+        console.log(res);
+        if (res?.sets) {
+          router.push(`/session/${res.sets.id}-${res.session.id}`);
+        } else {
+          toast.info("Session code does not exist!")
+        }
+      });
+    }
+  }
   return (
     <>
       <Head>
@@ -22,7 +40,83 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box></Box>
+      <CssBaseline />
+      <Box sx={{ position: "absolute", width: "100%" }}>
+        <Header user={data?.user} />
+      </Box>
+      <Box sx={{ backgroundColor: "#5FCCFB" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+            width: "100vw",
+            backgroundImage: `url(./images/bg_gradient.png)`,
+            backgroundRepeat: `no-repeat, no-repeat`,
+            backgroundPosition: `center`,
+            backgroundSize: "cover",
+          }}
+        >
+          <Box sx={{}}>
+            <Typography
+              variant="h2"
+              sx={{ color: "white", fontWeight: 600, my: 3 }}
+            >
+              Seminary ✏️
+            </Typography>
+            <Box sx={{ backgroundColor: "white", p: 5, borderRadius: 3 }}>
+              <Typography sx={{ my: 1 }}>
+                Logged in: {data.user.name}
+              </Typography>
+              <TextField
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                }}
+                placeholder="Enter Session Pin"
+                fullWidth
+                size="small"
+                sx={{ backgroundColor: "white", borderRadius: 1 }}
+              />
+              <Box sx={{ mt: 5, display: "flex" }}>
+                <Button
+                  onClick={joinHandler}
+                  variant="contained"
+                  sx={{
+                    display: "flex",
+                    width: "100%",
+                    textTransform: "none",
+                    backgroundColor: "#189EE5",
+                    height: 55,
+                  }}
+                >
+                  <Typography
+                    sx={{ textAlign: "center", fontFamily: "montserrat" }}
+                  >
+                    Enter{" "}
+                  </Typography>
+                </Button>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
     </>
-  )
+  );
+}
+export async function getServerSideProps({ req }) {
+  const session = await getSession({ req });
+  console.log(session);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { data: session },
+  };
 }

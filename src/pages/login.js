@@ -59,7 +59,7 @@ export default function Login({ data }) {
       .then((res) => {
         console.log(res);
         if (res.ok) {
-          router.push("/dashboard");
+          router.push("/");
         } else {
           toast.error("Please try agiain!");
           setError("Please try again!");
@@ -112,7 +112,7 @@ export async function getServerSideProps({ req }) {
   if (session) {
     return {
       redirect: {
-        destination: "/dashboard",
+        destination: "/",
         permanent: false,
       },
     };
