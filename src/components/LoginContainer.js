@@ -1,63 +1,76 @@
 import React from "react";
 import {
-    Box,
-    Typography,
-    TextField,
-    Button,
-    CardMedia,
-    CssBaseline,
-    ThemeProvider,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  CardMedia,
+  CssBaseline,
+  ThemeProvider,
 } from "@mui/material";
 import Image from "next/image";
 import useWindowDimensions from "../contexts/hooks/useWindowDimensions";
 
 export default function LoginContainer({
-    newUser,
-    setNewUser,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    error,
-    handleLogin,
+  newUser,
+  setNewUser,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  error,
+  handleLogin,
 }) {
-    const { width, height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
 
-
-
-    return (
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Box
+        sx={{
+          width: { mobile: "100vw", desktop: "544px" },
+          height: "548px",
+          p: 5,
+        }}
+      >
         <Box
-            sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
+          sx={{
+            marginHorizontal: width >= 450 ? 20 : 20,
+            minWidth: 250,
+            maxWidth: 450,
+          }}
+        ></Box>
+        <Typography
+          sx={{
+            color: "black",
+            fontSize: 30,
+            fontWeight: 600,
+            fontFamily: "Montserrat",
+            fontStyle: "bold",
+            mt: 3,
+          }}
         >
-            <Box
-                sx={{
-                    width: { mobile: "100vw", desktop: "544px" },
-                    height: "548px",
-                    p: 5,
-                }}
-            >
-                <Box
-                    sx={{
-                        marginHorizontal: width >= 450 ? 20 : 20,
-                        minWidth: 250,
-                        maxWidth: 450,
-                    }}
-                >
-                </Box>
-                <Typography sx={{ color: "black", fontSize: 30, fontWeight: 600, fontFamily: "Montserrat", fontStyle: "bold", mt: 3 }}>
-                    Sign in to Seminary✏️
-                </Typography>
-                <Typography sx={{ color: "black", fontSize: 16, color: "grey", fontFamily: "montserrat" }}>
-                    Please enter your account info to sign in
-                </Typography>
+          Sign in to noterly✏️
+        </Typography>
+        <Typography
+          sx={{
+            color: "black",
+            fontSize: 16,
+            color: "grey",
+            fontFamily: "montserrat",
+          }}
+        >
+          Please enter your account info to sign in
+        </Typography>
 
-                {/* TODO --- google button, use later ---- */}
-                {/* <Button
+        {/* TODO --- google button, use later ---- */}
+        {/* <Button
           disabled
           sx={{
             borderRadius: 2,
@@ -88,62 +101,70 @@ export default function LoginContainer({
           </Typography>
         </Button> */}
 
-                <Box
-                    sx={{
-                        mt: 2,
-                    }}
-                >
-                    <Box sx={{ flex: 1, fontFamily: "montserrat" }}>
-                        <TextField
-                            fullWidth
-                            placeholder="Email"
-                            variant="outlined"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            sx={{
-                                backgroundColor: "rgba(28, 117, 188, 0.09)",
-                            }}
-                        />
-                        <TextField
-                            fontFamily="montserrat"
-                            fullWidth
-                            placeholder="Password"
-                            variant="outlined"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            sx={{
-                                backgroundColor: "rgba(28, 117, 188, 0.09)",
-                                mt: 2,
-                            }}
-                        />
+        <Box
+          sx={{
+            mt: 2,
+          }}
+        >
+          <Box sx={{ flex: 1, fontFamily: "montserrat" }}>
+            <TextField
+              fullWidth
+              placeholder="Email"
+              variant="outlined"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{
+                backgroundColor: "rgba(28, 117, 188, 0.09)",
+              }}
+            />
+            <TextField
+              fontFamily="montserrat"
+              fullWidth
+              placeholder="Password"
+              variant="outlined"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              sx={{
+                backgroundColor: "rgba(28, 117, 188, 0.09)",
+                mt: 2,
+              }}
+            />
 
-                        <Box sx={{ mt: 5, display: "flex" }}>
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    display: "flex",
-                                    width: "100%",
-                                    textTransform: "none",
-                                    backgroundColor: "#189EE5",
-                                    height: 55
-                                }}
-                                onClick={handleLogin}
-                            >
-                                <Typography sx={{ textAlign: "center", fontFamily: "montserrat" }}>Log in</Typography>
-                            </Button>
-                        </Box>
-                        <Typography sx={{ color: "red" }}>{error}</Typography>
-                    </Box>
-                        <Typography sx={{mt:2, cursor:"pointer", "&:hover":{opacity:0.7}}} onClick={()=>{setNewUser(true)}}>
-                            Don't have an account?
-                        </Typography>
-                    {/* <Box>
+            <Box sx={{ mt: 5, display: "flex" }}>
+              <Button
+                variant="contained"
+                sx={{
+                  display: "flex",
+                  width: "100%",
+                  textTransform: "none",
+                  backgroundColor: "#189EE5",
+                  height: 55,
+                }}
+                onClick={handleLogin}
+              >
+                <Typography
+                  sx={{ textAlign: "center", fontFamily: "montserrat" }}
+                >
+                  Log in
+                </Typography>
+              </Button>
+            </Box>
+            <Typography sx={{ color: "red" }}>{error}</Typography>
+          </Box>
+          <Typography
+            sx={{ mt: 2, cursor: "pointer", "&:hover": { opacity: 0.7 } }}
+            onClick={() => {
+              setNewUser(true);
+            }}
+          >
+            Don't have an account?
+          </Typography>
+          {/* <Box>
                             <Button variant="contained">Sign up!</Button>
                     </Box> */}
-                </Box>
-            </Box>
         </Box>
-
-    );
+      </Box>
+    </Box>
+  );
 }

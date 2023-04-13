@@ -48,9 +48,9 @@ export default function Dashboard({ data }) {
     startSession(data?.user.id, selectedSet.id).then((res) => {
       console.log(res);
       //router.replace(`/session/${res.id}`)
-      
+
       joinSession(res.code, data?.user.id).then((res) => {
-        console.log(res)
+        console.log(res);
         router.replace(`/session/${res.sets.id}-${res.session.id}`);
       });
     });
@@ -59,7 +59,7 @@ export default function Dashboard({ data }) {
   return (
     <>
       <Head>
-        <title>Seminary✏️</title>
+        <title>noterly✏️</title>
         <meta name="description" content="" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -90,7 +90,7 @@ export default function Dashboard({ data }) {
                 fontStyle: "bold",
               }}
             >
-              My Seminary
+              My noterly
             </Typography>
             <Box sx={{ my: 2 }}>
               <Grid
@@ -251,11 +251,11 @@ export default function Dashboard({ data }) {
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2">
-            Host Your Seminary{" "}
+            Host Your noterly{" "}
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            It’s time to host your Seminary. You won’t be able to edit anything
-            while the Seminary is running! You will have access to all the
+            It’s time to host your noterly. You won’t be able to edit anything
+            while the noterly is running! You will have access to all the
             controls you need to create a fantastic experience for your
             students!{" "}
           </Typography>

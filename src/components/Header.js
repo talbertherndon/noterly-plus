@@ -35,11 +35,11 @@ export default function Header({ user }) {
             my: 1,
           }}
         >
-          Seminary✏️
+          noterly✏️
         </Typography>
         <Box sx={{ ml: "auto", display: "flex" }}>
           <Button
-           sx={{mx:1}}
+            sx={{ mx: 1 }}
             onClick={() => {
               signOut();
             }}
@@ -48,15 +48,14 @@ export default function Header({ user }) {
             <Typography>Sign out</Typography>
           </Button>
           <Button
-            sx={{mx:1}}
-             onClick={() => {
-                router.push("/dashboard");
-              }}
+            sx={{ mx: 1 }}
+            onClick={() => {
+              router.push("/dashboard");
+            }}
             variant="contained"
           >
             <Typography>Manage Sets</Typography>
           </Button>
-  
         </Box>
       </Box>
     </>
