@@ -1,6 +1,7 @@
 import {
   endSession,
   getSet,
+  leaveSession,
   nextQuestion,
   postAnswer,
   startSession,
@@ -21,6 +22,8 @@ import { useEffect, useState } from "react";
 
 import { configureAbly, useChannel } from "@ably-labs/react-hooks";
 import { media } from "@/mock/images";
+
+import ReactHowler from "react-howler";
 
 configureAbly({
   key: "SjNplQ.PeWp8Q:tMYZU6hygevKBg6iBkZyEAS2i3xoaP-9KCr2xltxccM",
@@ -54,13 +57,20 @@ export default function Session({ data }) {
     if (message.name == "next") {
       console.log("ADMIN MOVED TO NEXT QUESTION");
       getSet(id.split("-")[0]).then((res) => {
+        console.log("YOur anser", answer);
+        console.log("answers", answers);
         console.log(res.data.questions[res.data.sets.current - 1]);
         setSession(res.data.sets);
+        setAnswer();
+        setAnswers([]);
+        setUsers(res.data.users);
 
         if (res.data.questions[res.data.sets.current - 1]) {
           setQuestion(res.data.questions[res.data.sets.current - 1]);
           //countdown(res.data.questions[res.data.sets.current - 1]);
           setTime(res.data.questions[res.data.sets.current - 1].time);
+        } else {
+          console.log("No more questions left!");
         }
       });
     }
@@ -90,7 +100,6 @@ export default function Session({ data }) {
   useEffect(() => {
     if (session) {
       if (session.current != 0 || session.current < questions.length) {
-        console.log(time);
         if (time == 0 && isAdmin) {
           nextHandler();
         }
@@ -127,7 +136,7 @@ export default function Session({ data }) {
 
   useEffect(() => {
     if (session) {
-      if (answers.length == users.length && session.current != 0) {
+      if (answers.length == users.length && session.current != 0 && isAdmin) {
         nextHandler();
       }
     }
@@ -135,11 +144,9 @@ export default function Session({ data }) {
 
   function nextHandler() {
     console.log("Starting noterly");
-    if (session.current <= questions.length) {
+    if (session.current <= questions.length && isAdmin) {
       nextQuestion(data.user.id, id.split("-")[0]).then((res) => {
         console.log(res);
-        setAnswer();
-        setAnswers([]);
       });
     } else {
       console.log(session);
@@ -152,6 +159,16 @@ export default function Session({ data }) {
   function endHanlder() {
     console.log("Ending noterly");
     endSession(data.user.id, session.id).then((res) => {
+      router.push("/");
+    });
+  }
+
+  function leaveHandler() {
+    const payload = {
+      user_id: data.user.id,
+      session_id: id.split("-")[1],
+    };
+    leaveSession(payload).then((res) => {
       router.push("/");
     });
   }
@@ -170,12 +187,11 @@ export default function Session({ data }) {
       correct: question.answer == res ? true : false,
       response: res,
     };
-
+    setAnswer(payload);
     console.log(payload);
-
     postAnswer(payload).then((res) => {
       console.log(res);
-      setAnswer(res);
+      // setAnswer(res);
     });
   }
 
@@ -495,7 +511,9 @@ export default function Session({ data }) {
                   </>
                 ) : (
                   <>
-                    {" "}
+                    <Button onClick={leaveHandler} variant="contained">
+                      Leave
+                    </Button>{" "}
                     <Box
                       sx={{
                         backgroundColor: "white",
