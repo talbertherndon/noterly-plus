@@ -102,11 +102,23 @@ export async function endSession(user_id, sets_id) {
   }
 }
 
-
 export async function joinSession(code, user_id) {
   try {
     return await axios
       .get(API_BASE_URL + `/session?code=${code}&user_id=${user_id}`)
+      .then((res) => {
+        return res.data;
+      });
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function leaveSession(payload) {
+  try {
+    return await axios
+      .patch(API_BASE_URL + `/session_leave`, payload)
       .then((res) => {
         return res.data;
       });
@@ -131,11 +143,9 @@ export async function nextQuestion(user_id, sets_id) {
 
 export async function postAnswer(payload) {
   try {
-    return await axios
-      .post(API_BASE_URL + `/response`, payload )
-      .then((res) => {
-        return res.data;
-      });
+    return await axios.post(API_BASE_URL + `/response`, payload).then((res) => {
+      return res.data;
+    });
   } catch (e) {
     console.log(e);
     throw e;
