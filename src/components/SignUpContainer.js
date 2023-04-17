@@ -66,7 +66,7 @@ export default function SignUpContainer({
             mt: 3,
           }}
         >
-          Sign up to Seminary✏️
+          Sign up to noterly✏️
         </Typography>
         <Typography
           style={{
@@ -173,7 +173,12 @@ export default function SignUpContainer({
             </Box>
             <Typography style={{ color: "red" }}>{error}</Typography>
           </Box>
-          <Typography sx={{ mt: 2, cursor: "pointer", "&:hover": { opacity: 0.7 } }} onClick={() => { setNewUser(false) }}>
+          <Typography
+            sx={{ mt: 2, cursor: "pointer", "&:hover": { opacity: 0.7 } }}
+            onClick={() => {
+              setNewUser(false);
+            }}
+          >
             Already have an account?
           </Typography>
         </Box>
