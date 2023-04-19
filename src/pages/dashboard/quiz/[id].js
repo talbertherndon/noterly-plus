@@ -13,7 +13,11 @@ import {
   Radio,
   IconButton,
   Divider,
+  Tabs,
+  Tab,
 } from "@mui/material";
+import PropTypes from "prop-types";
+
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Carousel from "react-material-ui-carousel";
@@ -23,6 +27,34 @@ import { createSet, editSet, getSet } from "@/utils/api";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import SessionHistory from "@/components/SessionHistory";
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
 
 export default function editQuiz({ data }) {
   const router = useRouter();
@@ -40,6 +72,7 @@ export default function editQuiz({ data }) {
   const [type, setType] = useState("multi");
   const [choices, setChoices] = useState([]);
   const [selectedValue, setSelectedValue] = useState();
+  const [value, setValue] = useState(0);
 
   function editSetHandler() {
     console.log(set);
@@ -125,12 +158,12 @@ export default function editQuiz({ data }) {
           backgroundColor: "#F2F1F6",
           display: "flex",
           flexDirection: "column",
+          pb: 10,
         }}
       >
         <Box sx={{ alignSelf: "center", p: width > 450 ? 5 : 1 }}>
           <Box
             sx={{
-              width: width > 450 ? width - 200 : width - 100,
               overflow: "hidden",
             }}
           >
@@ -154,232 +187,255 @@ export default function editQuiz({ data }) {
             >
               Edit Set
             </Typography>
-            <Box sx={{ maxWidth: 300, my: 2 }}>
-              <Box
-                sx={{
-                  borderRadius: 4,
-                  overflow: "hidden",
-                  width: 150,
-                  height: 150,
-                  boxShadow: 3,
-                }}
-              >
-                <Box sx={{ height: 150, overflow: "hidden" }}>
-                  <motion.div
-                    animate={{ y: 0, scale: 1.1 }}
-                    whileHover={{ scale: 1.5 }}
-                  >
-                    <img
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        marginLeft: "auto",
-                        marginRight: "auto",
-                        objectFit: "fill",
-                      }}
-                      src={set.photo}
-                    />
-                  </motion.div>
+            <Box sx={{ my: 2, display: "flex" }}>
+              <Box sx={{ display: "flex" }}>
+                <Box
+                  sx={{
+                    borderRadius: 4,
+                    overflow: "hidden",
+                    width: 150,
+                    height: 150,
+                    boxShadow: 3,
+                  }}
+                >
+                  <Box sx={{ height: 150, overflow: "hidden" }}>
+                    <motion.div
+                      animate={{ y: 0, scale: 1.1 }}
+                      whileHover={{ scale: 1.5 }}
+                    >
+                      <img
+                        style={{
+                          display: "block",
+                          width: "100%",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                          objectFit: "fill",
+                        }}
+                        src={set.photo}
+                      />
+                    </motion.div>
+                  </Box>
                 </Box>
               </Box>
-              {/* <Carousel
-                                index={imageIndex}
-                                onChange={(e) => {
-                                    setImageIndex(e);
-                                }}
-                                navButtonsAlwaysVisible={true}
-                                indicators={false}
-                                cycleNavigation={false}
-                                height={200}
-
-                                autoPlay={false}>
-                                {media.map((item, i) => (
-                                    <Box key={i} sx={{ justifyContent: 'center', alignItems: 'center', display: 'flex', height: '100%' }}>
-                                        <Box sx={{ borderRadius: 4, overflow: 'hidden', width: 150, height: 150, boxShadow: 3 }}>
-                                            <Box sx={{ height: 150, overflow: 'hidden' }}>
-                                                <motion.div animate={{ y: 0, scale: 1.1 }} whileHover={{ scale: 1.5 }}>
-                                                    <img style={{ display: 'block', width: '100%', marginLeft: 'auto', marginRight: 'auto', objectFit: 'fill' }} src={item.photo} />
-                                                </motion.div>
-                                            </Box>
-
-                                        </Box>
-                                    </Box>
-
-                                ))}
-                            </Carousel> */}
+              <Box sx={{ ml: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Name"
+                  value={set.name}
+                  onChange={(e) => {
+                    setSet({ ...set, name: e.target.value });
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  multiline
+                  rows={4}
+                  size="small"
+                  placeholder="Description"
+                  value={set.description}
+                  onChange={(e) => {
+                    setSet({ ...set, description: e.target.value });
+                  }}
+                />
+              </Box>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <TextField
-                size="small"
-                placeholder="Name"
-                value={set.name}
-                onChange={(e) => {
-                  setSet({ ...set, name: e.target.value });
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={value}
+                onChange={(event, newValue) => {
+                  setValue(newValue);
+                  console.log(newValue);
                 }}
-              />
-              <TextField
-                sx={{ mt: 1 }}
-                multiline
-                rows={4}
-                size="small"
-                placeholder="Description"
-                value={set.description}
-                onChange={(e) => {
-                  setSet({ ...set, description: e.target.value });
-                }}
-              />
+                aria-label="basic tabs example"
+              >
+                <Tab label="Questions" {...a11yProps(0)} />
+                <Tab label="Metrics" {...a11yProps(1)} />
+                <Tab label="Settings" {...a11yProps(2)} />
+              </Tabs>
             </Box>
-            <Box sx={{ my: 2 }}>
-              <Typography>
-                Create questions to pop up during your discussion to make sure
-                your students are listening!
-              </Typography>
-            </Box>
-
-            <Box sx={{ maxWidth: 600 }}>
-              {questions.map((res) => {
-                return (
-                  <Box
-                    sx={{
-                      p: 2,
-                      border: 1,
-                      borderRadius: 3,
-                      my: 2,
-                      borderColor: "white",
-                      display: "flex",
-                    }}
-                  >
-                    <Box>
-                      <Typography>Question: {res.question}</Typography>
-                      <Typography>Correct Answer: {res.answer}</Typography>
-                    </Box>
-                    <IconButton
-                      onClick={() => {
-                        setQuestions(
-                          questions.filter((r) => {
-                            return r != res;
-                          })
-                        );
-                      }}
-                      sx={{ ml: "auto" }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                );
-              })}
-              <Box sx={{ display: "flex", flexDirection: "column" }}>
-                <Box sx={{ display: "flex" }}>
-                  <TextField
-                    value={question}
-                    onChange={(e) => {
-                      setQuestion(e.target.value);
-                    }}
-                    sx={{ flex: 2, mr: 1 }}
-                    size="small"
-                    placeholder="Untiled Question"
-                  />
-                  <FormControl sx={{ flex: 1, ml: 1 }} size="small">
-                    <InputLabel id="demo-simple-select-label">
-                      Question Type
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={type}
-                      label="Question Type"
-                      onChange={changeTypeHandler}
-                    >
-                      <MenuItem defaultValue={true} value={"multi"}>
-                        Multiple Choice
-                      </MenuItem>
-                      <MenuItem defaultValue={false} value={"truefalse"}>
-                        True or False
-                      </MenuItem>
-                      <MenuItem defaultValue={false} value={"fillInBlank"}>
-                        Fill in Blank
-                      </MenuItem>
-                      <MenuItem
-                        disabled
-                        defaultValue={false}
-                        value={"matching"}
-                      >
-                        Matching
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-                {choices.map((res, index) => {
+            <TabPanel value={value} index={0}>
+              <Box sx={{ my: 2 }}>
+                <Typography>
+                  Create questions to pop up during your discussion to make sure
+                  your students are listening!
+                </Typography>
+              </Box>
+              <Box sx={{ maxWidth: 600 }}>
+                {questions.map((res) => {
                   return (
-                    <Box sx={{ mt: 1, display: "flex" }}>
-                      <Radio
-                        checked={selectedValue == index}
-                        onChange={updateFieldChangedAnswer(index)}
-                        value={index}
-                        name="radio-buttons"
-                        inputProps={{ "aria-label": `${index}` }}
-                      />
-                      <TextField
-                        size="small"
-                        value={res}
-                        onChange={updateFieldChanged(index)}
-                      />
-                      {type != "truefalse" && (
-                        <IconButton
-                          sx={{ alignSelf: "center", ml: 1 }}
-                          onClick={() => {
-                            setChoices(
-                              choices.filter((r) => {
-                                return r != res;
-                              })
-                            );
-                          }}
-                        >
-                          <DeleteIcon sx={{ color: "black" }} />
-                        </IconButton>
-                      )}
+                    <Box
+                      sx={{
+                        p: 2,
+                        border: 1,
+                        borderRadius: 3,
+                        my: 2,
+                        borderColor: "white",
+                        display: "flex",
+                      }}
+                    >
+                      <Box>
+                        <Typography>Question: {res.question}</Typography>
+                        <Typography>Correct Answer: {res.answer}</Typography>
+                      </Box>
+                      <IconButton
+                        onClick={() => {
+                          setQuestions(
+                            questions.filter((r) => {
+                              return r != res;
+                            })
+                          );
+                        }}
+                        sx={{ ml: "auto" }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </Box>
                   );
                 })}
-
-                {type == "multi" && (
-                  <Box sx={{ my: 1 }}>
-                    <Chip
-                      onClick={() => {
-                        if (choices.length < 4) {
-                          setChoices((choices) => [
-                            ...choices,
-                            `Choice ${choices.length + 1}`,
-                          ]);
-                        } else {
-                          toast.info("Max is 4 multiple choice");
-                        }
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  <Box sx={{ display: "flex" }}>
+                    <TextField
+                      value={question}
+                      onChange={(e) => {
+                        setQuestion(e.target.value);
                       }}
-                      clickable
-                      disabled={choices.length < 4 ? false : true}
-                      label="Add Choice"
+                      sx={{ flex: 2, mr: 1 }}
+                      size="small"
+                      placeholder="Untiled Question"
                     />
+                    <FormControl sx={{ flex: 1, ml: 1 }} size="small">
+                      <InputLabel id="demo-simple-select-label">
+                        Question Type
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={type}
+                        label="Question Type"
+                        onChange={changeTypeHandler}
+                      >
+                        <MenuItem defaultValue={true} value={"multi"}>
+                          Multiple Choice
+                        </MenuItem>
+                        <MenuItem defaultValue={false} value={"truefalse"}>
+                          True or False
+                        </MenuItem>
+                        <MenuItem defaultValue={false} value={"fillInBlank"}>
+                          Fill in Blank
+                        </MenuItem>
+                        <MenuItem
+                          disabled
+                          defaultValue={false}
+                          value={"matching"}
+                        >
+                          Matching
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
                   </Box>
-                )}
-              </Box>
-            </Box>
-            <Divider sx={{ my: 2 }} />
+                  {choices.map((res, index) => {
+                    return (
+                      <Box sx={{ mt: 1, display: "flex" }}>
+                        <Radio
+                          checked={selectedValue == index}
+                          onChange={updateFieldChangedAnswer(index)}
+                          value={index}
+                          name="radio-buttons"
+                          inputProps={{ "aria-label": `${index}` }}
+                        />
+                        <TextField
+                          size="small"
+                          value={res}
+                          onChange={updateFieldChanged(index)}
+                        />
+                        {type != "truefalse" && (
+                          <IconButton
+                            sx={{ alignSelf: "center", ml: 1 }}
+                            onClick={() => {
+                              setChoices(
+                                choices.filter((r) => {
+                                  return r != res;
+                                })
+                              );
+                            }}
+                          >
+                            <DeleteIcon sx={{ color: "black" }} />
+                          </IconButton>
+                        )}
+                      </Box>
+                    );
+                  })}
 
-            <Box sx={{ my: 2 }}>
-              <Chip
-                disabled={question && selectedValue ? false : true}
-                clickable
-                onClick={addQuestionHandler}
-                label="Add Question"
-              />
-            </Box>
-            <Box>
-              <Button variant="contained" onClick={editSetHandler}>
-                Save Set
-              </Button>
-            </Box>
+                  {type == "multi" && (
+                    <Box sx={{ my: 1 }}>
+                      <Chip
+                        onClick={() => {
+                          if (choices.length < 4) {
+                            setChoices((choices) => [
+                              ...choices,
+                              `Choice ${choices.length + 1}`,
+                            ]);
+                          } else {
+                            toast.info("Max is 4 multiple choice");
+                          }
+                        }}
+                        clickable
+                        disabled={choices.length < 4 ? false : true}
+                        label="Add Choice"
+                      />
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ my: 2 }}>
+                <Chip
+                  disabled={question && selectedValue ? false : true}
+                  clickable
+                  onClick={addQuestionHandler}
+                  label="Add Question"
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <SessionHistory set={set} />
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+              <Box>
+                <Typography>Length per question?</Typography>
+                <TextField size="small" value={30} />
+              </Box>
+            </TabPanel>
           </Box>
         </Box>
+      </Box>
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          backgroundColor: "rgb(255,255,255,0.8)",
+          width: "100%",
+          boxShadow: 10,
+          zIndex: 10,
+          p: 2,
+          px: 10,
+        }}
+      >
+        <Button
+          sx={{ mx: 1 }}
+          variant="outlined"
+          onClick={() => {
+            router.back();
+          }}
+        >
+          Cancel{" "}
+        </Button>
+        <Button variant="contained" onClick={editSetHandler}>
+          Save Set
+        </Button>
       </Box>
     </Box>
   );

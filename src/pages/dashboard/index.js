@@ -36,6 +36,7 @@ export default function Dashboard({ data }) {
   const { width } = useWindowDimensions();
   const router = useRouter();
   const [sets, setSets] = useState([]);
+  const [openOption, setOpenOption] = useState(false);
   useEffect(() => {
     console.log(data);
     getMySets(data?.user.id).then((res) => {
@@ -55,6 +56,10 @@ export default function Dashboard({ data }) {
       });
     });
     // router.replace(`/session`)
+  }
+
+  function startNewSetHandler() {
+    router.push("dashboard/quiz");
   }
   return (
     <>
@@ -105,9 +110,7 @@ export default function Dashboard({ data }) {
               >
                 <Grid item xs={1} sm={1} md={1}>
                   <Box
-                    onClick={() => {
-                      router.push("dashboard/quiz");
-                    }}
+                    onClick={startNewSetHandler}
                     sx={{
                       "&:hover": {
                         opacity: 0.7,

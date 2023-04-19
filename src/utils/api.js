@@ -151,3 +151,16 @@ export async function postAnswer(payload) {
     throw e;
   }
 }
+
+export async function getSetData(set_id) {
+  try {
+    return await axios
+      .get(API_BASE_URL + `/set_data?sets_id=${set_id}`)
+      .then((res) => {
+        return res.data;
+      });
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
