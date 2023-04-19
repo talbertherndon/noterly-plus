@@ -15,6 +15,7 @@ import {
   Divider,
   Tabs,
   Tab,
+  Modal,
 } from "@mui/material";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
@@ -53,11 +54,6 @@ function a11yProps(index) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
 
 export default function Quiz({ data }) {
   const router = useRouter();
@@ -74,7 +70,7 @@ export default function Quiz({ data }) {
   const [choices, setChoices] = useState([]);
   const [question, setQuestion] = useState("");
   const [selectedValue, setSelectedValue] = useState();
-
+  const [value, setValue] = useState(0);
   const [generatedQuestion, setGeneratedQuestion] = useState([]);
 
   const [imageIndex, setImageIndex] = useState();
@@ -345,196 +341,217 @@ export default function Quiz({ data }) {
                 }}
               />
             </Box>
-            <Button
-              onClick={handleAutoGenerate}
-              sx={{ my: 2 }}
-              variant="contained"
-            >
-              AI Generate
-            </Button>
-            <Box sx={{ my: 2 }}>
-              <Typography>
-                Create questions to pop up during your discussion to make sure
-                your students are listening!
-              </Typography>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <Tabs
+                value={value}
+                onChange={(event, newValue) => {
+                  setValue(newValue);
+                  console.log(newValue);
+                }}
+                aria-label="basic tabs example"
+              >
+                <Tab label="Questions" {...a11yProps(0)} />
+                <Tab label="Settings" {...a11yProps(1)} />
+              </Tabs>
             </Box>
+            <TabPanel value={value} index={0}>
+              <Button
+                onClick={handleAutoGenerate}
+                sx={{ my: 2 }}
+                variant="contained"
+              >
+                AI Generate
+              </Button>
+              <Box sx={{ my: 2 }}>
+                <Typography>
+                  Create questions to pop up during your discussion to make sure
+                  your students are listening!
+                </Typography>
+              </Box>
 
-            <Box sx={{ maxWidth: 600 }}>
-              <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="droppable-1">
-                  {(provided) => (
-                    <Box
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      sx={{ minHeight: 50 }}
-                    >
-                      {questions.map((res, index) => (
-                        <Draggable
-                          key={index}
-                          draggableId={"draggable-" + index}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <Box
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              ref={provided.innerRef}
-                              sx={{
-                                p: 2,
-                                border: 1,
-                                borderRadius: 3,
-                                my: 2,
-                                borderColor: "white",
-                                display: "flex",
-                              }}
-                            >
-                              <Box>
-                                <Typography>
-                                  Question: {res.question}
-                                </Typography>
-                                <Typography>
-                                  Correct Answer: {res.answer}
-                                </Typography>
-                              </Box>
-                              <IconButton
-                                onClick={() => {
-                                  setQuestions(
-                                    questions.filter((r) => {
-                                      return r != res;
-                                    })
-                                  );
+              <Box sx={{ maxWidth: 600 }}>
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="droppable-1">
+                    {(provided) => (
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        sx={{ minHeight: 50 }}
+                      >
+                        {questions.map((res, index) => (
+                          <Draggable
+                            key={index}
+                            draggableId={"draggable-" + index}
+                            index={index}
+                          >
+                            {(provided) => (
+                              <Box
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                ref={provided.innerRef}
+                                sx={{
+                                  p: 2,
+                                  border: 1,
+                                  borderRadius: 3,
+                                  my: 2,
+                                  borderColor: "white",
+                                  display: "flex",
                                 }}
-                                sx={{ ml: "auto" }}
                               >
-                                <DeleteIcon />
-                              </IconButton>
-                            </Box>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
+                                <Box>
+                                  <Typography>
+                                    Question: {res.question}
+                                  </Typography>
+                                  <Typography>
+                                    Correct Answer: {res.answer}
+                                  </Typography>
+                                </Box>
+                                <IconButton
+                                  onClick={() => {
+                                    setQuestions(
+                                      questions.filter((r) => {
+                                        return r != res;
+                                      })
+                                    );
+                                  }}
+                                  sx={{ ml: "auto" }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </Box>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </Box>
+              <Box>
+                <Box sx={{ display: "flex", flexDirection: "column" }}>
+                  <Box sx={{ display: "flex" }}>
+                    <TextField
+                      value={question}
+                      onChange={(e) => {
+                        setQuestion(e.target.value);
+                      }}
+                      sx={{ flex: 2, mr: 1 }}
+                      size="small"
+                      placeholder="Untiled Question"
+                    />
+                    <FormControl sx={{ flex: 1, ml: 1 }} size="small">
+                      <InputLabel id="demo-simple-select-label">
+                        Question Type
+                      </InputLabel>
+                      <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={type}
+                        label="Question Type"
+                        onChange={changeTypeHandler}
+                      >
+                        <MenuItem defaultValue={true} value={"multi"}>
+                          Multiple Choice
+                        </MenuItem>
+                        <MenuItem defaultValue={false} value={"truefalse"}>
+                          True or False
+                        </MenuItem>
+                        <MenuItem defaultValue={false} value={"fillinblank"}>
+                          Fill in Blank
+                        </MenuItem>
+                        <MenuItem
+                          disabled
+                          defaultValue={false}
+                          value={"matching"}
+                        >
+                          Matching
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  {choices.map((res, index) => {
+                    return (
+                      <Box sx={{ mt: 1, display: "flex" }}>
+                        <Radio
+                          checked={selectedValue == index}
+                          onChange={updateFieldChangedAnswer(index)}
+                          value={index}
+                          name="radio-buttons"
+                          inputProps={{ "aria-label": `${index}` }}
+                        />
+                        <TextField
+                          size="small"
+                          value={res}
+                          onChange={updateFieldChanged(index)}
+                        />
+                        {type != "truefalse" && (
+                          <IconButton
+                            sx={{ alignSelf: "center", ml: 1 }}
+                            onClick={() => {
+                              setChoices(
+                                choices.filter((r) => {
+                                  return r != res;
+                                })
+                              );
+                            }}
+                          >
+                            <DeleteIcon sx={{ color: "black" }} />
+                          </IconButton>
+                        )}
+                      </Box>
+                    );
+                  })}
+                  {type == "multi" && (
+                    <Box sx={{ my: 1 }}>
+                      <Chip
+                        onClick={() => {
+                          if (choices.length < 4) {
+                            setChoices((choices) => [
+                              ...choices,
+                              `Choice ${choices.length + 1}`,
+                            ]);
+                          } else {
+                            toast.info("Max is 4 multiple choice");
+                          }
+                        }}
+                        clickable
+                        disabled={choices.length < 4 ? false : true}
+                        label="Add Choice"
+                      />
+                      <Chip
+                        onClick={generateMultipleChoiceHandler}
+                        clickable
+                        sx={{ mx: 1 }}
+                        disabled={choices.length < 4 ? false : true}
+                        label="Generate"
+                      />
                     </Box>
                   )}
-                </Droppable>
-              </DragDropContext>
-            </Box>
-            <Box>
-              <Box sx={{ display: "flex", flexDirection: "column" }}>
-                <Box sx={{ display: "flex" }}>
-                  <TextField
-                    value={question}
-                    onChange={(e) => {
-                      setQuestion(e.target.value);
-                    }}
-                    sx={{ flex: 2, mr: 1 }}
-                    size="small"
-                    placeholder="Untiled Question"
-                  />
-                  <FormControl sx={{ flex: 1, ml: 1 }} size="small">
-                    <InputLabel id="demo-simple-select-label">
-                      Question Type
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={type}
-                      label="Question Type"
-                      onChange={changeTypeHandler}
-                    >
-                      <MenuItem defaultValue={true} value={"multi"}>
-                        Multiple Choice
-                      </MenuItem>
-                      <MenuItem defaultValue={false} value={"truefalse"}>
-                        True or False
-                      </MenuItem>
-                      <MenuItem defaultValue={false} value={"fillinblank"}>
-                        Fill in Blank
-                      </MenuItem>
-                      <MenuItem
-                        disabled
-                        defaultValue={false}
-                        value={"matching"}
-                      >
-                        Matching
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
                 </Box>
-                {choices.map((res, index) => {
-                  return (
-                    <Box sx={{ mt: 1, display: "flex" }}>
-                      <Radio
-                        checked={selectedValue == index}
-                        onChange={updateFieldChangedAnswer(index)}
-                        value={index}
-                        name="radio-buttons"
-                        inputProps={{ "aria-label": `${index}` }}
-                      />
-                      <TextField
-                        size="small"
-                        value={res}
-                        onChange={updateFieldChanged(index)}
-                      />
-                      {type != "truefalse" && (
-                        <IconButton
-                          sx={{ alignSelf: "center", ml: 1 }}
-                          onClick={() => {
-                            setChoices(
-                              choices.filter((r) => {
-                                return r != res;
-                              })
-                            );
-                          }}
-                        >
-                          <DeleteIcon sx={{ color: "black" }} />
-                        </IconButton>
-                      )}
-                    </Box>
-                  );
-                })}
-                {type == "multi" && (
-                  <Box sx={{ my: 1 }}>
-                    <Chip
-                      onClick={() => {
-                        if (choices.length < 4) {
-                          setChoices((choices) => [
-                            ...choices,
-                            `Choice ${choices.length + 1}`,
-                          ]);
-                        } else {
-                          toast.info("Max is 4 multiple choice");
-                        }
-                      }}
-                      clickable
-                      disabled={choices.length < 4 ? false : true}
-                      label="Add Choice"
-                    />
-                    <Chip
-                      onClick={generateMultipleChoiceHandler}
-                      clickable
-                      sx={{ mx: 1 }}
-                      disabled={choices.length < 4 ? false : true}
-                      label="Generate"
-                    />
-                  </Box>
-                )}
               </Box>
-            </Box>
-            <Divider sx={{ my: 2 }} />
+              <Divider sx={{ my: 2 }} />
 
-            <Box sx={{ my: 2 }}>
-              <Chip
-                disabled={question && selectedValue ? false : true}
-                clickable
-                onClick={addQuestionHandler}
-                label="Add Question"
-              />
-            </Box>
-            <Box>
-              <Button variant="contained" onClick={createSetHandler}>
-                Create Set
-              </Button>
-            </Box>
+              <Box sx={{ my: 2 }}>
+                <Chip
+                  disabled={question && selectedValue ? false : true}
+                  clickable
+                  onClick={addQuestionHandler}
+                  label="Add Question"
+                />
+              </Box>
+              <Box>
+                <Button variant="contained" onClick={createSetHandler}>
+                  Create Set
+                </Button>
+              </Box>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <Box sx={{ width: 700 }}>
+                <Typography>Length per question?</Typography>
+                <TextField fullWidth size="small" value={30} />
+              </Box>
+            </TabPanel>
           </Box>
         </Box>
       </Box>
