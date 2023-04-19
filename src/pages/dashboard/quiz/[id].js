@@ -15,8 +15,10 @@ import {
   Divider,
   Tabs,
   Tab,
+  Modal,
 } from "@mui/material";
 import PropTypes from "prop-types";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -28,6 +30,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { getSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import SessionHistory from "@/components/SessionHistory";
+
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -58,7 +64,7 @@ TabPanel.propTypes = {
 
 export default function editQuiz({ data }) {
   const router = useRouter();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const { id } = router.query;
   const [set, setSet] = useState({
     name: "",
@@ -73,6 +79,17 @@ export default function editQuiz({ data }) {
   const [choices, setChoices] = useState([]);
   const [selectedValue, setSelectedValue] = useState();
   const [value, setValue] = useState(0);
+
+  const [generatedQuestion, setGeneratedQuestion] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  console.log(generatedQuestion);
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
 
   function editSetHandler() {
     console.log(set);
@@ -103,6 +120,13 @@ export default function editQuiz({ data }) {
     } else {
       toast.error("Please select an answer");
     }
+  }
+
+  function addGeneratedQuestionHandler(question, index) {
+    delete generatedQuestion[index];
+    console.log(question);
+    setQuestion(question);
+    setOpen(false);
   }
 
   useEffect(() => {
@@ -140,6 +164,75 @@ export default function editQuiz({ data }) {
     }
   }
 
+  function onDragEnd(result) {
+    const { destination, source, draggableId } = result;
+    if (!destination) {
+      return;
+    }
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+    const srcI = source.index;
+    const desI = destination.index;
+
+    questions.splice(desI, 0, questions.splice(srcI, 1)[0]);
+    //TODO:
+    console.log(result);
+
+    // console.log(Object.keys(attachments));
+
+    const updatedAttachments = questions.map((res, i) => {
+      console.log(res, "Changing", res.index, "to", i);
+
+      return (res.index = i);
+    });
+
+    console.log(questions);
+
+    //orderResource(attachments);
+  }
+  function handleAutoGenerate() {
+    setOpen(true);
+  }
+  async function generateMultipleChoiceHandler() {
+    const response = await fetch(`/api/choices`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        response: question,
+        userID: `${data?.user.id}`,
+      }),
+    });
+    const res = await response.json();
+    const choicesParsed = res.result.split("\n");
+    setChoices(choicesParsed);
+    setSelectedValue(res.answer - 1);
+    console.log(choicesParsed);
+  }
+
+  async function finishLectureHandler() {
+    const response = await fetch(`/api/generate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        response: transcript,
+        userID: `${data?.user.id}`,
+      }),
+    });
+    resetTranscript();
+    const res = await response.json();
+    const questionParsed = res.result.split("\n-");
+    setGeneratedQuestion(questionParsed);
+    console.log(questionParsed);
+  }
   useEffect(() => {
     if (id) {
       getSet(id).then((res) => {
@@ -256,6 +349,13 @@ export default function editQuiz({ data }) {
               </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
+              <Button
+                onClick={handleAutoGenerate}
+                sx={{ my: 2 }}
+                variant="contained"
+              >
+                AI Generate
+              </Button>
               <Box sx={{ my: 2 }}>
                 <Typography>
                   Create questions to pop up during your discussion to make sure
@@ -263,37 +363,65 @@ export default function editQuiz({ data }) {
                 </Typography>
               </Box>
               <Box sx={{ maxWidth: 600 }}>
-                {questions.map((res) => {
-                  return (
-                    <Box
-                      sx={{
-                        p: 2,
-                        border: 1,
-                        borderRadius: 3,
-                        my: 2,
-                        borderColor: "white",
-                        display: "flex",
-                      }}
-                    >
-                      <Box>
-                        <Typography>Question: {res.question}</Typography>
-                        <Typography>Correct Answer: {res.answer}</Typography>
-                      </Box>
-                      <IconButton
-                        onClick={() => {
-                          setQuestions(
-                            questions.filter((r) => {
-                              return r != res;
-                            })
-                          );
-                        }}
-                        sx={{ ml: "auto" }}
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="droppable-1">
+                    {(provided) => (
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        sx={{ minHeight: 50 }}
                       >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  );
-                })}
+                        {questions.map((res, index) => (
+                          <Draggable
+                            key={index}
+                            draggableId={"draggable-" + index}
+                            index={index}
+                          >
+                            {(provided) => (
+                              <Box
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                ref={provided.innerRef}
+                                sx={{
+                                  p: 2,
+                                  border: 1,
+                                  borderRadius: 3,
+                                  my: 2,
+                                  borderColor: "white",
+                                  display: "flex",
+                                }}
+                              >
+                                <Box>
+                                  <Typography>
+                                    Question: {res.question}
+                                  </Typography>
+                                  <Typography>
+                                    Correct Answer: {res.answer}
+                                  </Typography>
+                                </Box>
+                                <IconButton
+                                  onClick={() => {
+                                    setQuestions(
+                                      questions.filter((r) => {
+                                        return r != res;
+                                      })
+                                    );
+                                  }}
+                                  sx={{ ml: "auto" }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </Box>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </Box>
+              <Box>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Box sx={{ display: "flex" }}>
                     <TextField
@@ -322,7 +450,7 @@ export default function editQuiz({ data }) {
                         <MenuItem defaultValue={false} value={"truefalse"}>
                           True or False
                         </MenuItem>
-                        <MenuItem defaultValue={false} value={"fillInBlank"}>
+                        <MenuItem defaultValue={false} value={"fillinblank"}>
                           Fill in Blank
                         </MenuItem>
                         <MenuItem
@@ -367,7 +495,6 @@ export default function editQuiz({ data }) {
                       </Box>
                     );
                   })}
-
                   {type == "multi" && (
                     <Box sx={{ my: 1 }}>
                       <Chip
@@ -384,6 +511,17 @@ export default function editQuiz({ data }) {
                         clickable
                         disabled={choices.length < 4 ? false : true}
                         label="Add Choice"
+                      />
+                      <Chip
+                        onClick={generateMultipleChoiceHandler}
+                        clickable
+                        sx={{ mx: 1 }}
+                        disabled={
+                          choices.length < 4 && question.length > 5
+                            ? false
+                            : true
+                        }
+                        label="Generate"
                       />
                     </Box>
                   )}
@@ -437,6 +575,80 @@ export default function editQuiz({ data }) {
           Save Set
         </Button>
       </Box>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 500,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          {generatedQuestion.length > 0 ? (
+            <div>
+              {generatedQuestion.map((res, index) => (
+                <Box sx={{ display: "flex", my: 1 }}>
+                  <TextField multiline fullWidth value={res} />
+                  <Button
+                    onClick={() => addGeneratedQuestionHandler(res, index)}
+                    sx={{ mx: 1 }}
+                    variant="contained"
+                  >
+                    Add
+                  </Button>
+                </Box>
+              ))}
+              <Button
+                onClick={() => {
+                  setGeneratedQuestion([]);
+                }}
+              >
+                Generate New Questions
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Typography>
+                AI Generate your questions based off your lecture!
+              </Typography>
+              <TextField
+                fullWidth
+                multiline
+                rows={10}
+                value={transcript}
+                //onChange={(event) => setValue(event.target.value)}
+              />
+              {!listening ? (
+                <Button
+                  onClick={() =>
+                    SpeechRecognition.startListening({ continuous: true })
+                  }
+                >
+                  Start Lecutre 🎤
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    SpeechRecognition.stopListening();
+                    finishLectureHandler();
+                  }}
+                >
+                  End Lecutre
+                </Button>
+              )}
+            </div>
+          )}
+        </Box>
+      </Modal>
     </Box>
   );
 }
