@@ -44,7 +44,7 @@ export default function Session({ data }) {
   const [time, setTime] = useState(0);
 
   const [end, setEnd] = useState(false);
-  const color = ["red", "blue", "green", "yellow"];
+  const color = ["red", "blue", "green", "orange"];
 
   const [channel] = useChannel(`${session?.code}`, (message) => {
     console.log(message.name);
@@ -217,9 +217,14 @@ export default function Session({ data }) {
               {isAdmin && (
                 <>
                   {session.current == 0 ? (
-                    <Button onClick={nextHandler} variant="contained">
-                      Start
-                    </Button>
+                    <>
+                      <Button onClick={nextHandler} variant="contained">
+                        Start
+                      </Button>
+                      <Button onClick={endHanlder} variant="contained">
+                        End
+                      </Button>
+                    </>
                   ) : (
                     <>
                       {session.current <= questions.length ? (
@@ -511,9 +516,11 @@ export default function Session({ data }) {
                   </>
                 ) : (
                   <>
-                    <Button onClick={leaveHandler} variant="contained">
-                      Leave
-                    </Button>{" "}
+                    {!isAdmin && (
+                      <Button onClick={leaveHandler} variant="contained">
+                        Leave
+                      </Button>
+                    )}
                     <Box
                       sx={{
                         backgroundColor: "white",

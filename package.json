@@ -20,11 +20,13 @@
     "framer-motion": "^9.0.0",
     "next": "13.1.5",
     "next-auth": "^4.19.1",
+    "openai": "^3.2.1",
     "react": "18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "18.2.0",
     "react-howler": "^5.2.0",
     "react-material-ui-carousel": "^3.4.2",
+    "react-speech-recognition": "^3.10.0",
     "react-toastify": "^9.1.1"
   }
 }
