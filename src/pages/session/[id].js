@@ -181,7 +181,7 @@ export default function Session({ data }) {
     //validate session to make sure user is real --- /{id}
     const payload = {
       user_id: data.user.id,
-      session_id: id.split("-")[1],
+      session_id: session.code,
       sets_id: question.sets_id,
       questions_id: question.id,
       correct: question.answer == res ? true : false,
