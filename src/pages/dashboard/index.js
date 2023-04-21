@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "@next/font/google";
-import { Box, Button, Grid, Typography, Modal } from "@mui/material";
+import { Box, Button, Grid, Typography, Modal, Avatar } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
@@ -11,6 +11,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { media } from "../../mock/images";
 import { getMySets, getSets, joinSession, startSession } from "@/utils/api";
 import { getSession } from "next-auth/react";
+import SetCard from "@/components/SetCard";
 
 const style = {
   position: "absolute",
@@ -73,11 +74,13 @@ export default function Dashboard({ data }) {
       <Box
         sx={{
           backgroundColor: "#F2F1F6",
+          flex: 1,
+          justifyContent: "center",
+          alignContent: "center",
           display: "flex",
-          flexDirection: "column",
         }}
       >
-        <Box sx={{ alignSelf: "center", p: width > 450 ? 5 : 1 }}>
+        <Box sx={{ maxWidth: 1000, mt: 3, width: 1000 }}>
           <Box
             sx={{
               width: width > 450 ? width - 200 : width - 100,
@@ -99,14 +102,10 @@ export default function Dashboard({ data }) {
             </Typography>
             <Box sx={{ my: 2 }}>
               <Grid
-                sx={{
-                  maxWidth: width > 450 ? width - 200 : width - 100,
-                  overflow: "hidden",
-                  p: 1,
-                }}
+                sx={{ overflow: "hidden" }}
                 container
-                spacing={{ xs: 0.1, md: 0.1 }}
-                columns={{ xs: 2, sm: 3, md: 4 }}
+                spacing={{ xs: 1, md: 1 }}
+                columns={{ xs: 1, sm: 2, md: 4 }}
               >
                 <Grid item xs={1} sm={1} md={1}>
                   <Box
@@ -154,7 +153,8 @@ export default function Dashboard({ data }) {
                 {sets.map((res, index) => {
                   return (
                     <Grid item xs={1} sm={1} md={1} key={index}>
-                      <motion.div
+                      <SetCard/>
+                      {/* <motion.div
                         whileHover={{
                           opacity: 0.8,
                           translateY: -2,
@@ -237,7 +237,7 @@ export default function Dashboard({ data }) {
                             </Typography>
                           </Box>
                         </Box>
-                      </motion.div>
+                      </motion.div> */}
                     </Grid>
                   );
                 })}

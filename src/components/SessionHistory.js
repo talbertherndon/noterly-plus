@@ -44,7 +44,7 @@ export default function SessionHistory({ set }) {
       headerName: "Session",
       width: 200,
       editable: "false",
-      valueGetter: (params) => `${params.row.session_id}`,
+      valueGetter: (params) => `${params.row.session}`,
     },
   ];
   return (
