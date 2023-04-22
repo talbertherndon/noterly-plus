@@ -1,7 +1,7 @@
 import { Avatar, Box, Stack, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useEffect } from "react";
-import { media } from "../mock/TreePhotos";
+import { media } from "../mock/images";
 import { motion } from "framer-motion";
 
 export default function SetCard({ row, handleClick }) {
@@ -53,20 +53,10 @@ export default function SetCard({ row, handleClick }) {
               alignItems: "center",
             }}
           >
-            <Typography
-              variant="body1"
-              sx={{
-                mx: 2,
-                my: 0.5,
-                fontSize: 9,
-                fontWeight: 600,
-              }}
-            >
-              {row.price == 0 ? "Free" : "$" + row.price.toFixed(2)}
-            </Typography>
+    
           </Box>
           <Tooltip
-            title={`Created by ${row._user?.firstname} ${row._user?.lastname}`}
+            title={`Created by ${row.user.name}`}
           >
             <Avatar
               sx={{
@@ -75,7 +65,7 @@ export default function SetCard({ row, handleClick }) {
                 mt: 1,
                 fontSize: 14,
               }}
-              src={row._user?.photo_url}
+              src={row.user.name[0]}
             />
           </Tooltip>
         </Box>

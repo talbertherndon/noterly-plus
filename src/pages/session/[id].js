@@ -572,6 +572,27 @@ export default function Session({ data }) {
                         </Typography>
                       </Box>
                     )}
+                    {users[2] && (
+                      <Box
+                        sx={{
+                          backgroundColor: "white",
+                          p: 3,
+                          borderRadius: 3,
+                          height: 200,
+                          m: 1,
+                        }}
+                      >
+                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
+                          3nd Place Winner:
+                        </Typography>
+                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
+                          {users[1].user.name}
+                        </Typography>
+                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
+                          {users[1].points} Points!
+                        </Typography>
+                      </Box>
+                    )}
                   </>
                 )}
               </>

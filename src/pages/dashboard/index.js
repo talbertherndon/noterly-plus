@@ -81,33 +81,38 @@ export default function Dashboard({ data }) {
         }}
       >
         <Box sx={{ maxWidth: 1000, mt: 3, width: 1000 }}>
-          <Box
+          <Typography sx={{ fontWeight: 600 }}>
+            Welcome, {data?.user.name}
+          </Typography>
+          <Typography
             sx={{
-              width: width > 450 ? width - 200 : width - 100,
-              overflow: "hidden",
+              color: "black",
+              fontSize: 40,
+              fontWeight: 700,
+              fontStyle: "bold",
             }}
           >
-            <Typography sx={{ fontWeight: 600 }}>
-              Welcome, {data?.user.name}
-            </Typography>
-            <Typography
-              sx={{
-                color: "black",
-                fontSize: 40,
-                fontWeight: 700,
-                fontStyle: "bold",
-              }}
+            My noterly
+          </Typography>
+          <Box sx={{ my: 2 }}>
+            <Grid
+              sx={{ overflow: "hidden" }}
+              container
+              spacing={{ xs: 1, md: 1 }}
+              columns={{ xs: 1, sm: 2, md: 4 }}
             >
-              My noterly
-            </Typography>
-            <Box sx={{ my: 2 }}>
-              <Grid
-                sx={{ overflow: "hidden" }}
-                container
-                spacing={{ xs: 1, md: 1 }}
-                columns={{ xs: 1, sm: 2, md: 4 }}
-              >
-                <Grid item xs={1} sm={1} md={1}>
+              <Grid item xs={1} sm={1} md={1}>
+                <motion.div
+                  whileHover={{
+                    opacity: 0.8,
+                    translateY: -2,
+                  }}
+                  transition={{
+                    type: "spring",
+                    duration: 0.2,
+                    stiffness: 200,
+                  }}
+                >
                   <Box
                     onClick={startNewSetHandler}
                     sx={{
@@ -119,23 +124,24 @@ export default function Dashboard({ data }) {
                       borderRadius: 3,
                       backgroundColor: "white",
                       m: 1,
+                      height: 250,
                     }}
                   >
                     <Box
                       sx={{
-                        height: 300,
                         display: "flex",
                         justifyContent: "center",
                         overflow: "hidden",
                         maxWidth: width / 2,
                         alignItems: "center",
                         flexDirection: "column",
+                        py: 10,
                       }}
                     >
-                      <AddCircleIcon />
                       <Typography sx={{ fontWeight: 600 }}>
                         Start a New Set!
                       </Typography>
+                      <AddCircleIcon />
                     </Box>
                     <Box
                       sx={{
@@ -148,13 +154,15 @@ export default function Dashboard({ data }) {
                       <Box sx={{ display: "flex" }}></Box>
                     </Box>
                   </Box>
-                </Grid>
+                </motion.div>
+              </Grid>
 
-                {sets.map((res, index) => {
-                  return (
-                    <Grid item xs={1} sm={1} md={1} key={index}>
-                      <SetCard/>
-                      {/* <motion.div
+              {sets.map((res, index) => {
+                console.log(res);
+                return (
+                  <Grid item xs={1} sm={1} md={1} key={index}>
+                    <SetCard row={res} handleClick={() => handleOpen(res)} />
+                    {/* <motion.div
                         whileHover={{
                           opacity: 0.8,
                           translateY: -2,
@@ -238,14 +246,14 @@ export default function Dashboard({ data }) {
                           </Box>
                         </Box>
                       </motion.div> */}
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
           </Box>
         </Box>
       </Box>
+
       <Modal
         open={open}
         onClose={handleClose}
@@ -262,6 +270,15 @@ export default function Dashboard({ data }) {
             controls you need to create a fantastic experience for your
             students!{" "}
           </Typography>
+          <Button
+            sx={{ mt: 2, mr: 1 }}
+            onClick={() => {
+              router.push(`/dashboard/quiz/${selectedSet.id}`);
+            }}
+            variant={"contained"}
+          >
+            Edit
+          </Button>
           <Button
             sx={{ mt: 2 }}
             onClick={startSessionHandler}
