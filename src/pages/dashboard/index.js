@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "@next/font/google";
-import { Box, Button, Grid, Typography, Modal } from "@mui/material";
+import { Box, Button, Grid, Typography, Modal, Avatar } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
@@ -11,6 +11,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { media } from "../../mock/images";
 import { getMySets, getSets, joinSession, startSession } from "@/utils/api";
 import { getSession } from "next-auth/react";
+import SetCard from "@/components/SetCard";
 
 const style = {
   position: "absolute",
@@ -73,42 +74,45 @@ export default function Dashboard({ data }) {
       <Box
         sx={{
           backgroundColor: "#F2F1F6",
+          flex: 1,
+          justifyContent: "center",
+          alignContent: "center",
           display: "flex",
-          flexDirection: "column",
         }}
       >
-        <Box sx={{ alignSelf: "center", p: width > 450 ? 5 : 1 }}>
-          <Box
+        <Box sx={{ maxWidth: 1000, mt: 3, width: 1000 }}>
+          <Typography sx={{ fontWeight: 600 }}>
+            Welcome, {data?.user.name}
+          </Typography>
+          <Typography
             sx={{
-              width: width > 450 ? width - 200 : width - 100,
-              overflow: "hidden",
+              color: "black",
+              fontSize: 40,
+              fontWeight: 700,
+              fontStyle: "bold",
             }}
           >
-            <Typography sx={{ fontWeight: 600 }}>
-              Welcome, {data?.user.name}
-            </Typography>
-            <Typography
-              sx={{
-                color: "black",
-                fontSize: 40,
-                fontWeight: 700,
-                fontStyle: "bold",
-              }}
+            My noterly
+          </Typography>
+          <Box sx={{ my: 2 }}>
+            <Grid
+              sx={{ overflow: "hidden" }}
+              container
+              spacing={{ xs: 1, md: 1 }}
+              columns={{ xs: 1, sm: 2, md: 4 }}
             >
-              My noterly
-            </Typography>
-            <Box sx={{ my: 2 }}>
-              <Grid
-                sx={{
-                  maxWidth: width > 450 ? width - 200 : width - 100,
-                  overflow: "hidden",
-                  p: 1,
-                }}
-                container
-                spacing={{ xs: 0.1, md: 0.1 }}
-                columns={{ xs: 2, sm: 3, md: 4 }}
-              >
-                <Grid item xs={1} sm={1} md={1}>
+              <Grid item xs={1} sm={1} md={1}>
+                <motion.div
+                  whileHover={{
+                    opacity: 0.8,
+                    translateY: -2,
+                  }}
+                  transition={{
+                    type: "spring",
+                    duration: 0.2,
+                    stiffness: 200,
+                  }}
+                >
                   <Box
                     onClick={startNewSetHandler}
                     sx={{
@@ -120,23 +124,24 @@ export default function Dashboard({ data }) {
                       borderRadius: 3,
                       backgroundColor: "white",
                       m: 1,
+                      height: 250,
                     }}
                   >
                     <Box
                       sx={{
-                        height: 300,
                         display: "flex",
                         justifyContent: "center",
                         overflow: "hidden",
                         maxWidth: width / 2,
                         alignItems: "center",
                         flexDirection: "column",
+                        py: 10,
                       }}
                     >
-                      <AddCircleIcon />
                       <Typography sx={{ fontWeight: 600 }}>
                         Start a New Set!
                       </Typography>
+                      <AddCircleIcon />
                     </Box>
                     <Box
                       sx={{
@@ -149,12 +154,15 @@ export default function Dashboard({ data }) {
                       <Box sx={{ display: "flex" }}></Box>
                     </Box>
                   </Box>
-                </Grid>
+                </motion.div>
+              </Grid>
 
-                {sets.map((res, index) => {
-                  return (
-                    <Grid item xs={1} sm={1} md={1} key={index}>
-                      <motion.div
+              {sets.map((res, index) => {
+                console.log(res);
+                return (
+                  <Grid item xs={1} sm={1} md={1} key={index}>
+                    <SetCard row={res} handleClick={() => handleOpen(res)} />
+                    {/* <motion.div
                         whileHover={{
                           opacity: 0.8,
                           translateY: -2,
@@ -237,15 +245,15 @@ export default function Dashboard({ data }) {
                             </Typography>
                           </Box>
                         </Box>
-                      </motion.div>
-                    </Grid>
-                  );
-                })}
-              </Grid>
-            </Box>
+                      </motion.div> */}
+                  </Grid>
+                );
+              })}
+            </Grid>
           </Box>
         </Box>
       </Box>
+
       <Modal
         open={open}
         onClose={handleClose}
@@ -262,6 +270,15 @@ export default function Dashboard({ data }) {
             controls you need to create a fantastic experience for your
             students!{" "}
           </Typography>
+          <Button
+            sx={{ mt: 2, mr: 1 }}
+            onClick={() => {
+              router.push(`/dashboard/quiz/${selectedSet.id}`);
+            }}
+            variant={"contained"}
+          >
+            Edit
+          </Button>
           <Button
             sx={{ mt: 2 }}
             onClick={startSessionHandler}
