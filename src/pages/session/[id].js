@@ -1,5 +1,6 @@
 import {
   endSession,
+  getScore,
   getSet,
   leaveSession,
   nextQuestion,
@@ -11,6 +12,7 @@ import Image from "next/image";
 import {
   Box,
   Button,
+  Chip,
   CircularProgress,
   CssBaseline,
   Grid,
@@ -42,6 +44,8 @@ export default function Session({ data }) {
   const [answers, setAnswers] = useState([]);
   const [answer, setAnswer] = useState();
   const [time, setTime] = useState(0);
+
+  const [score, setScore] = useState();
 
   const [end, setEnd] = useState(false);
   const color = ["red", "blue", "green", "orange"];
@@ -87,7 +91,9 @@ export default function Session({ data }) {
       setAnswers(message.data);
     }
     if (message.name == "end") {
-      router.push("/");
+      if (!isAdmin) {
+        router.push("/");
+      }
     }
   });
 
@@ -152,6 +158,10 @@ export default function Session({ data }) {
       console.log(session);
       console.log(questions);
       //session.current++;
+      getScore(data.user.id, id.split("-")[0]).then((res) => {
+        console.log(res.data);
+        setScore(res.data);
+      });
       console.log("End of Quiz Totaling points!");
     }
   }
@@ -159,7 +169,7 @@ export default function Session({ data }) {
   function endHanlder() {
     console.log("Ending noterly");
     endSession(data.user.id, session.id).then((res) => {
-      router.push("/");
+      router.push(`/session/recap/${session.id}-${session.code}`);
     });
   }
 
@@ -242,9 +252,11 @@ export default function Session({ data }) {
                           </Button>
                         </>
                       ) : (
-                        <Button onClick={endHanlder} variant="contained">
-                          End
-                        </Button>
+                        <>
+                          <Button onClick={endHanlder} variant="contained">
+                            End /Metrics
+                          </Button>
+                        </>
                       )}
                     </>
                   )}
@@ -522,77 +534,288 @@ export default function Session({ data }) {
                         Leave
                       </Button>
                     )}
-                    <Box
-                      sx={{
-                        backgroundColor: "white",
-                        p: 3,
-                        borderRadius: 3,
-                        height: 200,
-                        m: 1,
-                        display: "flex",
-                      }}
-                    >
-                      {" "}
-                      <Image
-                        src="/images/gold.png"
-                        alt="Gold"
-                        width={100}
-                        height={100}
-                      />
-                      <Box>
-                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
-                          1st Place Winner:
+
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
+                      <Box sx={{ maxWidth: 1000, width: 1000 }}>
+                        <Typography variant="h2" sx={{ color: "white" }}>
+                          Leaderboard
                         </Typography>
-                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
-                          {users[0].user.name}
+                        <Typography variant="h5" sx={{ color: "white" }}>
+                          {session.name} - Session: {session.code}
                         </Typography>
-                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
-                          {users[0].points} Points!
-                        </Typography>
+                        <Box sx={{ display: "flex" }}>
+                          {users[1] && (
+                            <Box
+                              sx={{
+                                flex: 1,
+                                backgroundColor: "white",
+                                p: 5,
+                                borderRadius: 50,
+                                overflow: "hidden",
+                                m: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                width: 300,
+                                height: 300,
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: 20,
+                                  fontWeight: 600,
+                                  textAlign: "center",
+                                }}
+                              >
+                                2nd Place Winner
+                              </Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <Image
+                                  alt={users[1].user.email}
+                                  src={`https://avatars.dicebear.com/api/bottts/${users[1].user.email}.svg`}
+                                  width={100}
+                                  height={100}
+                                />
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: 25,
+                                  fontWeight: 700,
+                                  textAlign: "center",
+                                  display: "-webkit-box",
+                                  overflow: "hidden",
+                                  WebkitBoxOrient: "vertical",
+                                  WebkitLineClamp: 2,
+                                }}
+                              >
+                                {users[1].user.name}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  fontSize: 20,
+                                  fontWeight: 700,
+                                  textAlign: "center",
+                                }}
+                              >
+                                {users[1].points} Points!
+                              </Typography>
+                            </Box>
+                          )}
+                          {users[0] && (
+                            <Box
+                              sx={{
+                                flex: 1,
+                                backgroundColor: "white",
+                                p: 5,
+                                borderRadius: 50,
+                                overflow: "hidden",
+                                m: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                border: 1,
+                                borderColor: "yellow",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: 20,
+                                  fontWeight: 600,
+                                  textAlign: "center",
+                                }}
+                              >
+                                1st Place Winner
+                              </Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <Image
+                                  alt={users[0].user.email}
+                                  src={`https://avatars.dicebear.com/api/bottts/${users[0].user.email}.svg`}
+                                  width={100}
+                                  height={100}
+                                />
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: 25,
+                                  fontWeight: 700,
+                                  textAlign: "center",
+                                  display: "-webkit-box",
+                                  overflow: "hidden",
+                                  WebkitBoxOrient: "vertical",
+                                  WebkitLineClamp: 2,
+                                }}
+                              >
+                                {users[0].user.name}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  fontSize: 20,
+                                  fontWeight: 700,
+                                  textAlign: "center",
+                                }}
+                              >
+                                {users[0].points} Points!
+                              </Typography>
+                            </Box>
+                          )}
+                          {users[2] && (
+                            <Box
+                              sx={{
+                                flex: 1,
+                                backgroundColor: "white",
+                                p: 5,
+                                borderRadius: 50,
+                                overflow: "hidden",
+                                m: 1,
+                                justifyContent: "center",
+                                alignItems: "center",
+                                width: 300,
+                                height: 300,
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: 20,
+                                  fontWeight: 600,
+                                  textAlign: "center",
+                                }}
+                              >
+                                3rd Place Winner
+                              </Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <Image
+                                  alt={users[2].user.email}
+                                  src={`https://avatars.dicebear.com/api/bottts/${users[2].user.email}.svg`}
+                                  width={100}
+                                  height={100}
+                                />
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontSize: 25,
+                                  fontWeight: 700,
+                                  textAlign: "center",
+                                  display: "-webkit-box",
+                                  overflow: "hidden",
+                                  WebkitBoxOrient: "vertical",
+                                  WebkitLineClamp: 2,
+                                }}
+                              >
+                                {users[2].user.name}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  fontSize: 20,
+                                  fontWeight: 700,
+                                  textAlign: "center",
+                                }}
+                              >
+                                {users[2].points} Points!
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
                       </Box>
                     </Box>
-                    {users[1] && (
-                      <Box
-                        sx={{
-                          backgroundColor: "white",
-                          p: 3,
-                          borderRadius: 3,
-                          height: 200,
-                          m: 1,
-                        }}
-                      >
-                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
-                          2nd Place Winner:
-                        </Typography>
-                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
-                          {users[1].user.name}
-                        </Typography>
-                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
-                          {users[1].points} Points!
-                        </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        my: 3,
+                        overflowY: "auto",
+                        maxHeight: 1000,
+                      }}
+                    >
+                      <Box sx={{ maxWidth: 1000, width: 900 }}>
+                        <Box sx={{}}>
+                          {users.map((res, index) => {
+                            if (index > -1)
+                              return (
+                                <Box
+                                  sx={{
+                                    backgroundColor:
+                                      res.user.id == data?.user.id
+                                        ? "green"
+                                        : "white",
+                                    p: 2,
+                                    borderRadius: 50,
+                                    overflow: "hidden",
+                                    m: 1,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    display: "flex",
+                                  }}
+                                >
+                                  <Image
+                                    alt={res.user.email}
+                                    src={`https://avatars.dicebear.com/api/bottts/${res.user.email}.svg`}
+                                    width={50}
+                                    height={50}
+                                  />
+                                  <Typography
+                                    sx={{
+                                      mx: 2,
+                                      fontSize: 25,
+                                      fontWeight: 700,
+                                      textAlign: "center",
+                                      display: "-webkit-box",
+                                      overflow: "hidden",
+                                      WebkitBoxOrient: "vertical",
+                                      WebkitLineClamp: 2,
+                                      mr: "auto",
+                                    }}
+                                  >
+                                    {res.user.name} #{res.user.id}
+                                  </Typography>
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      justifyContent: "center",
+                                    }}
+                                  ></Box>
+
+                                  <Typography
+                                    sx={{
+                                      fontSize: 20,
+                                      fontWeight: 700,
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    {res.points} Points!
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      mx: 2,
+                                      fontSize: 20,
+                                      fontWeight: 600,
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    {index + 1} Rank
+                                  </Typography>
+                                  {res.user.id == data?.user.id && (
+                                    <Chip color="error" label="You" />
+                                  )}
+                                </Box>
+                              );
+                          })}
+                        </Box>
                       </Box>
-                    )}
-                    {users[2] && (
-                      <Box
-                        sx={{
-                          backgroundColor: "white",
-                          p: 3,
-                          borderRadius: 3,
-                          height: 200,
-                          m: 1,
-                        }}
-                      >
-                        <Typography sx={{ fontSize: 20, fontWeight: 600 }}>
-                          3nd Place Winner:
-                        </Typography>
-                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
-                          {users[1].user.name}
-                        </Typography>
-                        <Typography sx={{ fontSize: 30, fontWeight: 700 }}>
-                          {users[1].points} Points!
-                        </Typography>
-                      </Box>
-                    )}
+                    </Box>
                   </>
                 )}
               </>

@@ -152,13 +152,27 @@ export async function postAnswer(payload) {
   }
 }
 
-export async function getSetData(set_id) {
+export async function getSetData(set_id, recap) {
   try {
     return await axios
-      .get(API_BASE_URL + `/set_data?sets_id=${set_id}`)
+      .get(
+        API_BASE_URL +
+          `/set_data?sets_id=${set_id}${recap ? `&code=${recap}` : ''}`
+      )
       .then((res) => {
         return res.data;
       });
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function getScore(user_id, set_id) {
+  try {
+    return await axios.get(
+      API_BASE_URL + `/score?sets_id=${set_id}&user_id=${user_id}`
+    );
   } catch (e) {
     console.log(e);
     throw e;

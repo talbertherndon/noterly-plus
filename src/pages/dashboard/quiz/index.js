@@ -73,7 +73,7 @@ export default function Quiz({ data }) {
   const [value, setValue] = useState(0);
   const [generatedQuestion, setGeneratedQuestion] = useState([]);
 
-  const [imageIndex, setImageIndex] = useState();
+  const [imageIndex, setImageIndex] = useState(0);
   const [open, setOpen] = useState(false);
   console.log(generatedQuestion);
   const {
