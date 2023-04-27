@@ -2,14 +2,15 @@ import { getSetData } from "@/utils/api";
 import { Box } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-export default function SessionHistory({ set }) {
+export default function SessionHistory({ set, recap }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    getSetData(set.id).then((res) => {
+    console.log(set,recap);
+    getSetData(set.id, recap).then((res) => {
       console.log(res);
       setData(res);
     });
-  }, []);
+  }, [set]);
   const columns = [
     {
       field: "name",
